@@ -10,9 +10,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@orbs-network/ton-access": "^2.3.3",
     "@telegram-apps/react-router-integration": "^1.0.0",
     "@telegram-apps/sdk-react": "^1.0.0",
     "@telegram-apps/telegram-ui": "^2.1.5",
+    "@ton/crypto": "^3.3.0",
     "@ton/ton": "^15.0.0",
     "@tonclient/appkit": "^0.3.0",
     "@tonclient/core": "^1.30.0",
