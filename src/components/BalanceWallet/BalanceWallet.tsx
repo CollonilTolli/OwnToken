@@ -7,7 +7,7 @@ import { TonClient } from "@tonclient/core";
 export default function BalanceWallet() {
   const wallet = useTonWallet();
   const client = new TonClient();
-  const [walletBalance, setWalletBalance] = useState();
+  const [walletBalance, setWalletBalance] = useState(null);
   const getBalance = useCallback(async () => {
     try {
       const result = await client.request("get_account_state", {
@@ -42,7 +42,7 @@ export default function BalanceWallet() {
             </Info>
           }
           before={<Avatar size={48} />}
-          subtitle="YOUR_TOKEN_SYMBOL"
+          subtitle=""
         >
           EQAD2vAejy7hCfDmV5l246FYfA37AiV7TkWPIoR8i0EoGH2l
         </Cell>
