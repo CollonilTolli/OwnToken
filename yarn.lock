@@ -402,6 +402,13 @@
     "@twa-dev/types" "^7.0.0"
     "@xelene/vaul-with-scroll-fix" "0.1.4"
 
+"@ton/core@^0.58.1":
+  version "0.58.1"
+  resolved "https://registry.yarnpkg.com/@ton/core/-/core-0.58.1.tgz#f6f2ecef6a7149bcd23825bfbb454f116d54363f"
+  integrity sha512-zydh42iT6E3U3Ky/DhTFqJMN/ycKKzbsHASY257Qr2sZn97G/MOcHFizPfMnbJJgx0H9iHX6mdyMvp1IKBVAFA==
+  dependencies:
+    symbol.inspect "1.0.1"
+
 "@ton/crypto-primitives@2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@ton/crypto-primitives/-/crypto-primitives-2.1.0.tgz#8c9277c250b59aae3c819e0d6bd61e44d998e9ca"
