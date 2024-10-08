@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTonWallet } from "@tonconnect/ui-react";
 import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
 import { TonClient } from "@tonclient/core";
@@ -43,7 +43,11 @@ export default function BalanceWallet() {
       throw [error.name, error.message];
     }
   };
-  getBalance(userAddress || "");
+
+  useEffect(() => {
+    getBalance(userAddress || "");
+  }, [userAddress]);
+
   return (
     <Section header="Balance">
       {JSON.parse(walletBalance)}
