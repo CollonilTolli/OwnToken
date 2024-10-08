@@ -1,0 +1,19 @@
+{
+  "name": "Your App Name",
+  "version": "1.0.0",
+  "description": "Description of your app",
+  "icons": [
+    {
+      "src": "path/to/icon.png",
+      "sizes": "192x192"
+    }
+  ],
+  "permissions": [
+    "ton.wallet.balance",
+    "ton.wallet.sendTransaction"
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff"
+}
