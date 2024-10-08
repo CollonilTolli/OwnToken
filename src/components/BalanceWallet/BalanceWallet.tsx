@@ -7,28 +7,19 @@ import { TonClient } from "@ton/ton";
 
 export default function BalanceWallet() {
   const [walletBalance, setWalletBalance] = useState<any | null>(null);
-  const wallet = useTonWallet(); // Получаем объект кошелька
+  const wallet = useTonWallet();
+
   useEffect(() => {
-    if (wallet) {
-      const client = new TonClient({
-        // @ts-ignore
-        endpoint: wallet.connectItems?.tonProof.proof.domain.value,
-      });
+    const address = wallet?.account?.address;
+    const url = `https://toncenter.com/api/v2/getAddressInformation?address=${address}`;
+    fetch(url)
+      .then(async (response: any) => {
+        const res = response.json();
+        setWalletBalance(parseFloat(res.result.balance) / 1e9);
+      })
+      .catch((error) => console.error(error));
+  }, [wallet]);
 
-      const address = wallet.account.address;
-
-      client
-        // @ts-ignore
-        .getBalance(address)
-        .then((balance) => {
-          console.log("Баланс кошелька:", balance.toString());
-          setWalletBalance(balance);
-        })
-        .catch((error) => {
-          console.error("Ошибка при получении баланса:", error);
-        });
-    }
-  }, [wallet, walletBalance]);
   return (
     <Section header="Balance">
       {JSON.stringify(walletBalance)}
@@ -39,7 +30,7 @@ export default function BalanceWallet() {
           </Info>
         }
         before={<Avatar size={48} />}
-        subtitle=""
+        subtitle="TON"
       />
     </Section>
   );
