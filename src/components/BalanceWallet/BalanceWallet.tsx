@@ -15,7 +15,7 @@ export default function BalanceWallet() {
     if (address) {
       fetch(url)
         .then(async (response: any) => {
-          const res = response.json();
+          const res = await response.json();
           console.log(res);
           setWalletBalance(parseFloat(res.result.balance) / 1e9);
         })
