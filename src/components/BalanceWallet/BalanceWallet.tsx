@@ -46,6 +46,7 @@ export default function BalanceWallet() {
   getBalance(userAddress || "");
   return (
     <Section header="Balance">
+      {JSON.parse(walletBalance)}
       <Cell
         after={
           <Info subtitle="balance" type="text">
