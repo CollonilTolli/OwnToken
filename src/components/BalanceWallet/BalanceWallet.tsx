@@ -1,52 +1,60 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
-import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
+import { useState } from "react";
+import { useTonWallet } from "@tonconnect/ui-react";
 import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
 import { TonClient } from "@tonclient/core";
 
 export default function BalanceWallet() {
   const wallet = useTonWallet();
-  const client = new TonClient();
-  const [walletBalance, setWalletBalance] = useState(null);
-  const getBalance = useCallback(async () => {
+  const [walletBalance, setWalletBalance] = useState<any | null>(null);
+  const userAddress = wallet?.account.address;
+  const DappServer = "net.ton.dev";
+  const client = new TonClient({ network: { endpoints: [DappServer] } });
+
+  let getBalance = async function (address: string) {
     try {
-      const result = await client.request("get_account_state", {
-        address: wallet?.account.address,
-      });
-
-      if (result.account_state) {
-        const balance = result.account_state.balance;
-        console.log("Баланс кошелька:", balance);
-        setWalletBalance(balance);
+      console.log("address data", address);
+      const batchQueryResult = (
+        await client.net.batch_query({
+          operations: [
+            {
+              type: "QueryCollection",
+              collection: "accounts",
+              filter: {
+                id: {
+                  eq: address,
+                },
+              },
+              result: "balance",
+            },
+          ],
+        })
+      ).results;
+      if (!batchQueryResult[0][0]) {
+        throw Error;
       } else {
-        console.log("Ошибка: аккаунт не найден");
+        let yourNumber = parseInt(batchQueryResult[0][0].balance, 16);
+        console.log("Balance of wallet 1 is " + yourNumber + " grams");
+        setWalletBalance(batchQueryResult);
+        return { address: address, balance: yourNumber };
       }
-    } catch (error) {
-      console.error("Ошибка получения баланса:", error);
+    } catch (error: any) {
+      console.error(error);
+      throw [error.name, error.message];
     }
-  }, [client, wallet]);
-
-  useEffect(() => {
-    getBalance();
-    console.log(wallet);
-  }, [wallet, getBalance]);
-
+  };
+  getBalance(userAddress || "");
   return (
     <Section header="Balance">
-      {wallet && JSON.stringify(walletBalance)}
-      {walletBalance !== null && (
-        <Cell
-          after={
-            <Info subtitle="balance" type="text">
-              {walletBalance} YOUR_TOKEN_SYMBOL
-            </Info>
-          }
-          before={<Avatar size={48} />}
-          subtitle=""
-        >
-          EQAD2vAejy7hCfDmV5l246FYfA37AiV7TkWPIoR8i0EoGH2l
-        </Cell>
-      )}
+      <Cell
+        after={
+          <Info subtitle="balance" type="text">
+            {walletBalance ? walletBalance : "Loading..."}
+          </Info>
+        }
+        before={<Avatar size={48} />}
+        subtitle=""
+      />
     </Section>
   );
 }
