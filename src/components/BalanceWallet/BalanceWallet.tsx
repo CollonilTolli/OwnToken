@@ -10,7 +10,10 @@ export default function BalanceWallet() {
   const wallet = useTonWallet(); // Получаем объект кошелька
   useEffect(() => {
     if (wallet) {
-      const client = new TonClient({ endpoint: "https://mainnet.ton.dev" }); // Создаём TON Client для mainnet (замените на нужный endpoint)
+      const client = new TonClient({
+        // @ts-ignore
+        endpoint: wallet.connectItems?.tonProof.proof.domain.value,
+      });
 
       const address = wallet.account.address;
 
