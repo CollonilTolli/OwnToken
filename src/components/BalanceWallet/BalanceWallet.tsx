@@ -29,7 +29,7 @@ export default function BalanceWallet() {
   }, [wallet]);
   return (
     <Section header="Balance">
-      {JSON.parse(walletBalance)}
+      {JSON.stringify(walletBalance)}
       <Cell
         after={
           <Info subtitle="balance" type="text">
