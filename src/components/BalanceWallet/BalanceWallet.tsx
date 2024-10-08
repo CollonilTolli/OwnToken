@@ -2,15 +2,15 @@
 import { useState, useEffect } from "react";
 import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
 
-import { useTonWallet } from "@tonconnect/ui-react";
+import { useTonAddress, useTonWallet } from "@tonconnect/ui-react";
 import { TonClient } from "@ton/ton";
 
 export default function BalanceWallet() {
   const [walletBalance, setWalletBalance] = useState<any | null>(null);
-  const wallet = useTonWallet();
+  // const wallet = useTonWallet();
+  const address = useTonAddress();
 
   useEffect(() => {
-    const address = wallet?.account?.address;
     const url = `https://toncenter.com/api/v2/getAddressInformation?address=${address}`;
     fetch(url)
       .then(async (response: any) => {
@@ -18,7 +18,7 @@ export default function BalanceWallet() {
         setWalletBalance(parseFloat(res.result.balance) / 1e9);
       })
       .catch((error) => console.error(error));
-  }, [wallet]);
+  }, [address]);
 
   return (
     <Section header="Balance">
