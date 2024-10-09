@@ -5,35 +5,32 @@ import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
 import { useTonWallet } from "@tonconnect/ui-react";
 
 export default function BalanceWallet() {
-  const [wallets, setWallets] = useState<any[] | null>(null);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
   const wallet = useTonWallet();
   const address = wallet?.account?.address;
   useEffect(() => {
-    const url = `https://toncenter.com/api/v3/walletStates?address=${address}`;
+    const url = `https://toncenter.com/api/v2/getAddressInformation?address=${address}`;
     if (address) {
       fetch(url)
         .then(async (response: any) => {
           const res = await response.json();
           console.log(res);
-          setWallets(res.wallets);
+          setWalletBalance(parseFloat(res.result.balance) / 1e9);
         })
         .catch((error) => console.error(error));
     }
-  }, [address]);
+  }, [address, walletBalance]);
 
-  return wallets?.length ? (
+  return walletBalance !== null ? (
     <Section header="Balance">
-      {JSON.stringify(wallets)}
-      {wallets.map((token) => (
-        <Cell
-          key={token.address}
-          after={<Info type="text">{token.balance}</Info>}
-          before={<Avatar size={48} />}
-        >
-          TON
-        </Cell>
-      ))}
+      {JSON.stringify(walletBalance)}
+      <Cell
+        after={<Info type="text">{walletBalance}</Info>}
+        before={<Avatar size={48} />}
+      >
+        TON
+      </Cell>
     </Section>
   ) : (
     <></>
