@@ -3,18 +3,18 @@ import { useState, useEffect } from "react";
 import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
 
 import { useTonWallet } from "@tonconnect/ui-react";
+import TonWeb from "tonweb";
 
 export default function BalanceWallet() {
-  const [walletBalance, setWalletBalance] = useState<number | null>(null);
-
+  const tonweb = new TonWeb();
   const wallet = useTonWallet();
+
+  const [jettonArray, setJettonArray] = useState<any[] | null>(null);
   const walletAddress = wallet?.account?.address;
-  const jettokenId =
-    "0:123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+
   useEffect(() => {
-    const url = `https://toncenter.com/api/v3/jetton/wallets?jetton=${jettokenId}`;
+    const url = `https://toncenter.com/api/v3/jetton/wallets?jetton=${walletAddress}`;
     if (wallet) {
-      // Выполняем Fetch-запрос
       fetch(url, {
         method: "GET",
         headers: {
@@ -28,37 +28,34 @@ export default function BalanceWallet() {
           return response.json();
         })
         .then((data) => {
-          // Обрабатываем данные, полученные из TON Center
           console.log("Список кошельков для токена:", data);
-
-          // Проверяем, есть ли ваш адрес в списке кошельков
-          const hasWallet = data.wallets.some(
-            (wallet: any) => wallet === walletAddress
-          );
-          if (hasWallet) {
-            console.log(`Адрес ${walletAddress} найден в списке кошельков.`);
-            // Можно получить информацию о балансе токена на этом адресе
-          } else {
-            console.log(`Адрес ${walletAddress} не найден в списке кошельков.`);
-          }
+          setJettonArray(data.jetton_wallets);
         })
         .catch((error) => {
           console.error("Ошибка:", error);
         });
     }
-  }, [walletAddress, walletBalance]);
+  }, [walletAddress, wallet]);
+  useEffect(() => {
+    if (jettonArray !== null && jettonArray.length) {
+      jettonArray.forEach((element) => {
+        tonweb.provider
+          //@ts-ignore
+          .call("getJettonData", { address: element.jetton })
+          .then((result) => {
+            console.log("Информация о кошельке: ", result);
+            // Обработка данных о токене
+          });
+      });
+    }
+  }, [jettonArray]);
 
-  return walletBalance !== null ? (
+  return (
     <Section header="Balance">
       {JSON.stringify(wallet)}
-      <Cell
-        after={<Info type="text">{walletBalance}</Info>}
-        before={<Avatar size={48} />}
-      >
+      <Cell after={<Info type="text">aaa</Info>} before={<Avatar size={48} />}>
         TON
       </Cell>
     </Section>
-  ) : (
-    <>{JSON.stringify(wallet)}</>
   );
 }
