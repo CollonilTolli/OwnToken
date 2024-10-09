@@ -31,7 +31,6 @@ export default function BalanceWallet() {
           const metadata = await fetchJettonMetadata(metadataUrl);
           return metadata;
         });
-
         const metadataArray = await Promise.all(metadataPromises);
         setJettonMetadata(metadataArray);
       })();
