@@ -22,7 +22,7 @@ export default function BalanceWallet() {
     }
   }, [address, wallets]);
 
-  return wallets !== null ? (
+  return wallets?.length ? (
     <Section header="Balance">
       {JSON.stringify(wallets)}
       {wallets.map((token) => (
