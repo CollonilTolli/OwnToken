@@ -5,7 +5,7 @@ import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
 import { useTonWallet } from "@tonconnect/ui-react";
 
 export default function BalanceWallet() {
-  const [walletBalance, setWalletBalance] = useState<any | null>(null);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
   const wallet = useTonWallet();
   const address = wallet?.account?.address;
@@ -22,7 +22,7 @@ export default function BalanceWallet() {
     }
   }, [address, walletBalance]);
 
-  return walletBalance ? (
+  return walletBalance !== null ? (
     <Section header="Balance">
       {JSON.stringify(walletBalance)}
       <Cell
