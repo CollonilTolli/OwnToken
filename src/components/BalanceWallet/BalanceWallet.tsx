@@ -6,7 +6,6 @@ import { useTonWallet } from "@tonconnect/ui-react";
 
 export default function BalanceWallet() {
   const [walletBalance, setWalletBalance] = useState<any | null>(null);
-  const [wallets, setWallets] = useState<any | null>(null);
 
   const wallet = useTonWallet();
   const address = wallet?.account?.address;
@@ -25,14 +24,10 @@ export default function BalanceWallet() {
 
   return (
     <Section header="Balance">
-      {JSON.stringify(wallets)}
-      <Cell
-        after={<>{walletBalance}</>}
-        before={<Avatar size={48} />}
-        subtitle=""
-      >
-        TON
-      </Cell>
+      {JSON.stringify(walletBalance)}
+      <Info subtitle="TON" type="text">
+        {walletBalance}
+      </Info>
     </Section>
   );
 }
