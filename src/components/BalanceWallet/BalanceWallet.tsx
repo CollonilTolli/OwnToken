@@ -1,58 +1,32 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
-import { TonConnectUI } from "@tonconnect/ui-react";
-import { TonConnect } from "@tonconnect/sdk"; // Импортируем только TonConnect
+
+import { useTonWallet } from "@tonconnect/ui-react";
 
 export default function BalanceWallet() {
-  const [tokens, setTokens] = useState([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const [client, setClient] = useState(null);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
+  const wallet = useTonWallet();
+  const address = wallet?.account?.address;
   useEffect(() => {
-    const connect = async () => {
-      try {
-        // Инициализация TonConnect
-        const tonConnect = new TonConnect();
-
-        // Запуск UI-компонента для авторизации
-        const connected = await tonConnect.connect({
-          autoDetect: true,
-        });
-
-        // Получение клиента Ton
-        const client = tonConnect.client; // Используем TonConnect.client
-        setClient(client);
-
-        // Проверка на подключение
-        if (connected) {
-          setIsConnected(true);
-          // Получение информации о токенах
-          getTokens(client);
-        }
-      } catch (error) {
-        console.error("Ошибка подключения:", error);
-      }
-    };
-
-    connect();
-  }, []);
-
-  const getTokens = async (client) => {
-    try {
-      const address = await client.getAccount().getAddress();
-      const tokensData = await client.getTokens({ address });
-      setTokens(tokensData);
-    } catch (error) {
-      console.error("Ошибка получения токенов:", error);
+    const url = `https://toncenter.com/api/v2/jsonRPC`;
+    if (address) {
+      fetch(url)
+        .then(async (response: any) => {
+          const res = await response.json();
+          console.log(res);
+          setWalletBalance(parseFloat(res.result.balance) / 1e9);
+        })
+        .catch((error) => console.error(error));
     }
-  };
+  }, [address, walletBalance]);
 
-  return tokens !== null ? (
+  return walletBalance !== null ? (
     <Section header="Balance">
-      {JSON.stringify(tokens)}
+      {JSON.stringify(walletBalance)}
       <Cell
-        after={<Info type="text">{tokens}</Info>}
+        after={<Info type="text">{walletBalance}</Info>}
         before={<Avatar size={48} />}
       >
         TON
