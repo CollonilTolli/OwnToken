@@ -4,6 +4,7 @@ import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
 
 import { useTonWallet } from "@tonconnect/ui-react";
 import TonWeb from "tonweb";
+import { fetchJettonData } from "@/helpers";
 
 export default function BalanceWallet() {
   const tonweb = new TonWeb();
@@ -12,31 +13,12 @@ export default function BalanceWallet() {
   const [jettonArray, setJettonArray] = useState<any[] | null>(null);
   const walletAddress = wallet?.account?.address;
 
-  async function fetchJettonData(url: string) {
-    try {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setJettonArray(data.jetton_wallets);
-      console.log("Список кошельков для токена:", jettonArray);
-    } catch (error) {
-      console.error("Ошибка:", error);
-    }
-  }
-
   useEffect(() => {
     const url = `https://toncenter.com/api/v3/jetton/wallets?jetton=${walletAddress}`;
     if (wallet) {
-      fetchJettonData(url);
+      (async () => {
+        setJettonArray(await fetchJettonData(url));
+      })();
     }
   }, [walletAddress, wallet]);
 
