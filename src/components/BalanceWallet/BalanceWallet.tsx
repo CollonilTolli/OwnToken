@@ -10,7 +10,7 @@ export default function BalanceWallet() {
   const wallet = useTonWallet();
   const address = wallet?.account?.address;
   useEffect(() => {
-    const url = `https://tonapi.io/v2/jettons/${address}/holders?limit=1000&offset=0`;
+    const url = `https://tonapi.io/v2/jettons/${address}/holders`;
     if (address) {
       fetch(url)
         .then(async (response: any) => {
@@ -33,6 +33,6 @@ export default function BalanceWallet() {
       </Cell>
     </Section>
   ) : (
-    <></>
+    <>{JSON.stringify(wallet)}</>
   );
 }
