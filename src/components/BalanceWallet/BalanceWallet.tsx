@@ -1,15 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
-
+import TonConnect from "@tonconnect/sdk";
 import { useTonWallet } from "@tonconnect/ui-react";
-import { TonClient } from "@ton/ton";
 
 export default function BalanceWallet() {
   const [walletBalance, setWalletBalance] = useState<any | null>(null);
+  const [wallets, setWallets] = useState<any | null>(null);
+  const connector = new TonConnect();
+
   const wallet = useTonWallet();
   const address = wallet?.account?.address;
-
   useEffect(() => {
     const url = `https://toncenter.com/api/v2/getAddressInformation?address=${address}`;
     if (address) {
@@ -22,19 +23,24 @@ export default function BalanceWallet() {
         .catch((error) => console.error(error));
     }
   }, [address]);
-
+  (async () => {
+    const wallets = await connector.getWallets();
+    setWallets(wallets);
+  })();
   return (
     <Section header="Balance">
-      {JSON.stringify(walletBalance)}
+      {JSON.stringify(wallets)}
       <Cell
         after={
           <Info subtitle="balance" type="text">
-            {walletBalance ? walletBalance : "Loading..."}
+            {walletBalance}
           </Info>
         }
         before={<Avatar size={48} />}
-        subtitle="TON"
-      />
+        subtitle=""
+      >
+        TON
+      </Cell>
     </Section>
   );
 }
