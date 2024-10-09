@@ -3,9 +3,11 @@ import { useState, useEffect } from "react";
 import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
 
 import { useTonWallet } from "@tonconnect/ui-react";
+import TonWeb from "tonweb";
 import { fetchJettonData, fetchJettonMetadata } from "@/helpers";
 
 export default function BalanceWallet() {
+  const tonweb = new TonWeb();
   const wallet = useTonWallet();
 
   const [jettonArray, setJettonArray] = useState<any[] | null>(null);
@@ -13,7 +15,7 @@ export default function BalanceWallet() {
   const walletAddress = wallet?.account?.address;
 
   useEffect(() => {
-    const url = `https://tonapi.io/v2/jettons/${walletAddress}`;
+    const url = `https://toncenter.com/api/v3/jetton/wallets?jetton=${walletAddress}`;
     if (wallet) {
       (async () => {
         setJettonArray(await fetchJettonData(url));
@@ -25,7 +27,7 @@ export default function BalanceWallet() {
     if (jettonArray) {
       (async () => {
         const metadataPromises = jettonArray.map(async (jetton) => {
-          const metadataUrl = `https://tonapi.io/v2/jetton/metadata?address=${jetton.jetton}`;
+          const metadataUrl = `https://tonapi.io/v2/jettons/${jetton.jetton}`;
           const metadata = await fetchJettonMetadata(metadataUrl);
           return metadata;
         });
