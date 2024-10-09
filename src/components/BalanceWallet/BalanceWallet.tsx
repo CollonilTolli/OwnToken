@@ -1,55 +1,62 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
-
-import { useTonWallet } from "@tonconnect/ui-react";
+import { TonConnectUI } from "@tonconnect/ui-react";
+import { TonConnect } from "@tonconnect/sdk"; // Импортируем только TonConnect
 
 export default function BalanceWallet() {
-  const [walletTokens, setWalletTokens] = useState<
-    { name: string; balance: number }[]
-  >([]);
-
-  const wallet = useTonWallet();
-  const address = wallet?.account?.address;
+  const [tokens, setTokens] = useState([]);
+  const [isConnected, setIsConnected] = useState(false);
+  const [client, setClient] = useState(null);
 
   useEffect(() => {
-    const fetchTokenBalances = async () => {
-      if (address) {
-        const url = `https://toncenter.com/api/v2/getAddressInformation?address=${address}`;
-        try {
-          const response = await fetch(url);
-          const data = await response.json();
+    const connect = async () => {
+      try {
+        // Инициализация TonConnect
+        const tonConnect = new TonConnect();
 
-          // Extract tokens from the API response
-          const tokens = Object.entries(data.result.balance)
-            .filter(([key, value]) => key !== "balance")
-            .map(([key, value]) => ({
-              name: key, //@ts-ignore
-              balance: parseFloat(value) / 1e9, // Convert balance to human-readable format
-            }));
+        // Запуск UI-компонента для авторизации
+        const connected = await tonConnect.connect({
+          autoDetect: true,
+        });
 
-          setWalletTokens(tokens);
-        } catch (error) {
-          console.error("Error fetching token balances:", error);
+        // Получение клиента Ton
+        const client = tonConnect.client; // Используем TonConnect.client
+        setClient(client);
+
+        // Проверка на подключение
+        if (connected) {
+          setIsConnected(true);
+          // Получение информации о токенах
+          getTokens(client);
         }
+      } catch (error) {
+        console.error("Ошибка подключения:", error);
       }
     };
 
-    fetchTokenBalances();
-  }, [address]);
+    connect();
+  }, []);
 
-  return walletTokens !== null ? (
+  const getTokens = async (client) => {
+    try {
+      const address = await client.getAccount().getAddress();
+      const tokensData = await client.getTokens({ address });
+      setTokens(tokensData);
+    } catch (error) {
+      console.error("Ошибка получения токенов:", error);
+    }
+  };
+
+  return tokens !== null ? (
     <Section header="Balance">
-      {JSON.stringify(walletTokens)}
-      {walletTokens.map((el) => (
-        <Cell
-          key={el.name}
-          after={<Info type="text">{el.balance}</Info>}
-          before={<Avatar size={48} />}
-        >
-          {el.name}
-        </Cell>
-      ))}
+      {JSON.stringify(tokens)}
+      <Cell
+        after={<Info type="text">{tokens}</Info>}
+        before={<Avatar size={48} />}
+      >
+        TON
+      </Cell>
     </Section>
   ) : (
     <></>
