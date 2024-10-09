@@ -8,17 +8,43 @@ export default function BalanceWallet() {
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
   const wallet = useTonWallet();
-  const address = wallet?.account?.address;
+  const walletAddress = wallet?.account?.address;
+  const jettokenId =
+    "0:123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
   useEffect(() => {
-    const url = `https://tonapi.io/v2/jettons/${address}/holders`;
-    if (address) {
-      fetch(url)
-        .then(async (response: any) => {
-          const res = await response.json();
-          console.log(res);
-          setWalletBalance(res.result.balance);
+    const url = `https://toncenter.com/api/v3/jetton/wallets?jetton=${jettokenId}`;
+    if (wallet) {
+      // Выполняем Fetch-запрос
+      fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
         })
-        .catch((error) => console.error(error));
+        .then((data) => {
+          // Обрабатываем данные, полученные из TON Center
+          console.log("Список кошельков для токена:", data);
+
+          // Проверяем, есть ли ваш адрес в списке кошельков
+          const hasWallet = data.wallets.some(
+            (wallet: any) => wallet === walletAddress
+          );
+          if (hasWallet) {
+            console.log(`Адрес ${walletAddress} найден в списке кошельков.`);
+            // Можно получить информацию о балансе токена на этом адресе
+          } else {
+            console.log(`Адрес ${walletAddress} не найден в списке кошельков.`);
+          }
+        })
+        .catch((error) => {
+          console.error("Ошибка:", error);
+        });
     }
   }, [address, walletBalance]);
 
