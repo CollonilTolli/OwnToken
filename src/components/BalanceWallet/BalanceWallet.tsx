@@ -10,13 +10,13 @@ export default function BalanceWallet() {
   const wallet = useTonWallet();
   const address = wallet?.account?.address;
   useEffect(() => {
-    const url = `https://toncenter.com/api/v2/getAddressInformation?address=${address}`;
+    const url = `https://tonapi.io/v2/jettons/${address}/holders?limit=1000&offset=0`;
     if (address) {
       fetch(url)
         .then(async (response: any) => {
           const res = await response.json();
           console.log(res);
-          setWalletBalance(parseFloat(res.result.balance) / 1e9);
+          setWalletBalance(res.result.balance);
         })
         .catch((error) => console.error(error));
     }
