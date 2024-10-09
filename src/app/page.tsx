@@ -14,7 +14,11 @@ export default function Home() {
         <Link href="/ton-connect">
           <Cell
             before={
-              <Image src={tonSvg.src} style={{ backgroundColor: "#007AFF" }} />
+              <Image
+                src={tonSvg.src}
+                style={{ backgroundColor: "#007AFF" }}
+                alt=""
+              />
             }
             subtitle="Connect your TON wallet"
           >
