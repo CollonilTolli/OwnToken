@@ -22,12 +22,17 @@ export default function BalanceWallet() {
     }
   }, [address]);
 
-  return (
+  return walletBalance ? (
     <Section header="Balance">
       {JSON.stringify(walletBalance)}
-      <Info subtitle="TON" type="text">
-        {walletBalance}
-      </Info>
+      <Cell
+        after={<Info type="text">{walletBalance}</Info>}
+        before={<Avatar size={48} />}
+      >
+        TON
+      </Cell>
     </Section>
+  ) : (
+    <></>
   );
 }
