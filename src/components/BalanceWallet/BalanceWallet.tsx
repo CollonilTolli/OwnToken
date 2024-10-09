@@ -26,11 +26,11 @@ export default function BalanceWallet() {
   useEffect(() => {
     if (jettonArray) {
       (async () => {
-        const metadataPromises = jettonArray.map(async (jetton) => {
+        const metadataPromises = jettonArray.map(async (jetton, index) => {
           const metadataUrl = `https://tonapi.io/v2/jettons/${jetton.jetton}`;
-          const metadata = await fetchJettonMetadata(metadataUrl);
-          return metadata;
+          return fetchJettonMetadata(metadataUrl, index);
         });
+
         const metadataArray = await Promise.all(metadataPromises);
         setJettonMetadata(metadataArray);
       })();
@@ -40,7 +40,7 @@ export default function BalanceWallet() {
   return (
     <Section header="Balance">
       {JSON.stringify(wallet)}
-      {jettonMetadata &&
+      {/* {jettonMetadata &&
         jettonMetadata.map((metadata, index) => (
           <Cell
             key={index}
@@ -49,7 +49,7 @@ export default function BalanceWallet() {
           >
             {metadata.symbol || `Jetton ${index + 1}`}
           </Cell>
-        ))}
+        ))} */}
     </Section>
   );
 }
