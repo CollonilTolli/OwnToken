@@ -12,28 +12,31 @@ export default function BalanceWallet() {
   const [jettonArray, setJettonArray] = useState<any[] | null>(null);
   const walletAddress = wallet?.account?.address;
 
-  useEffect(() => {
-    const url = `https://toncenter.com/api/v3/jetton/wallets?jetton=${walletAddress}`;
-    if (wallet) {
-      fetch(url, {
+  async function fetchJettonData(url: string) {
+    try {
+      const response = await fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setJettonArray(data.jetton_wallets);
-          console.log("Список кошельков для токена:", jettonArray);
-        })
-        .catch((error) => {
-          console.error("Ошибка:", error);
-        });
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setJettonArray(data.jetton_wallets);
+      console.log("Список кошельков для токена:", jettonArray);
+    } catch (error) {
+      console.error("Ошибка:", error);
+    }
+  }
+
+  useEffect(() => {
+    const url = `https://toncenter.com/api/v3/jetton/wallets?jetton=${walletAddress}`;
+    if (wallet) {
+      fetchJettonData(url);
     }
   }, [walletAddress, wallet]);
 
