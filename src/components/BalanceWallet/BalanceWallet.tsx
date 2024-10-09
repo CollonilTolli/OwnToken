@@ -28,14 +28,15 @@ export default function BalanceWallet() {
           return response.json();
         })
         .then((data) => {
-          console.log("Список кошельков для токена:", data);
           setJettonArray(data.jetton_wallets);
+          console.log("Список кошельков для токена:", jettonArray);
         })
         .catch((error) => {
           console.error("Ошибка:", error);
         });
     }
   }, [walletAddress, wallet]);
+
   useEffect(() => {
     if (jettonArray !== null && jettonArray.length) {
       jettonArray.forEach((element) => {
