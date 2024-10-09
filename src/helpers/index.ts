@@ -12,9 +12,10 @@ export async function fetchJettonData(url: string) {
     }
 
     const data = await response.json();
-    console.log("Список джеттонов: ", data)
+    console.log("Список jettons: ", data)
     return data
   } catch (error) {
+    console.log("url ", url)
     console.error("Ошибка:", error);
     return null
   }

@@ -3,11 +3,9 @@ import { useState, useEffect } from "react";
 import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
 
 import { useTonWallet } from "@tonconnect/ui-react";
-import TonWeb from "tonweb";
 import { fetchJettonData, fetchJettonMetadata } from "@/helpers";
 
 export default function BalanceWallet() {
-  const tonweb = new TonWeb();
   const wallet = useTonWallet();
 
   const [jettonArray, setJettonArray] = useState<any[] | null>(null);
