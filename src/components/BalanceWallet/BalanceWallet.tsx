@@ -46,7 +46,7 @@ export default function BalanceWallet() {
           console.error("Ошибка:", error);
         });
     }
-  }, [address, walletBalance]);
+  }, [walletAddress, walletBalance]);
 
   return walletBalance !== null ? (
     <Section header="Balance">
