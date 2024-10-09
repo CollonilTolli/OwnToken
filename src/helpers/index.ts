@@ -12,7 +12,8 @@ export async function fetchJettonData(url: string) {
     }
 
     const data = await response.json();
-    return data.jetton_wallets
+    console.log("Список джеттонов: ", data)
+    return data
   } catch (error) {
     console.error("Ошибка:", error);
     return null

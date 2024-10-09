@@ -15,7 +15,7 @@ export default function BalanceWallet() {
   const walletAddress = wallet?.account?.address;
 
   useEffect(() => {
-    const url = `https://toncenter.com/api/v3/jetton/wallets?jetton=${walletAddress}`;
+    const url = `https://tonapi.io/v2/jettons/${walletAddress}`;
     if (wallet) {
       (async () => {
         setJettonArray(await fetchJettonData(url));
