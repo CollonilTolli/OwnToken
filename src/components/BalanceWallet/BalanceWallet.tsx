@@ -23,17 +23,7 @@ export default function BalanceWallet() {
   }, [walletAddress, wallet]);
 
   useEffect(() => {
-    if (jettonArray !== null && jettonArray.length) {
-      jettonArray.forEach((element) => {
-        tonweb.provider
-          //@ts-ignore
-          .call("getJettonData", { address: element.jetton })
-          .then((result) => {
-            console.log("Информация о кошельке: ", result);
-            // Обработка данных о токене
-          });
-      });
-    }
+    console.log("aaaa");
   }, [jettonArray]);
 
   return (
