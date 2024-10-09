@@ -24,7 +24,7 @@ export default function BalanceWallet() {
 
   return walletBalance !== null ? (
     <Section header="Balance">
-      {JSON.stringify(walletBalance)}
+      {JSON.stringify(wallet)}
       <Cell
         after={<Info type="text">{walletBalance}</Info>}
         before={<Avatar size={48} />}
