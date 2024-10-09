@@ -20,7 +20,7 @@ export default function BalanceWallet() {
         })
         .catch((error) => console.error(error));
     }
-  }, [address, wallets]);
+  }, [address]);
 
   return wallets?.length ? (
     <Section header="Balance">
