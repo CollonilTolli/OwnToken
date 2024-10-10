@@ -7,7 +7,8 @@ const client = new TonClient({
 });
 
 
-export async function checkTokenTransaction(walletAddress: string) {
+export async function checkTokenTransaction() {
+  const walletAddress = "UQCVFBBd9zrURbNHgTOHsjq8eyPm8rK7sxYGHNhorw8e7UE5"
   const tokenAddress = 'EQAD2vAejy7hCfDmV5l246FYfA37AiV7TkWPIoR8i0EoGH2l';
   try {
     // Получение данных о транзакциях

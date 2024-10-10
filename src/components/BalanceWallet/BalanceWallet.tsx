@@ -41,7 +41,7 @@ export default function BalanceWallet() {
     // }
     if (jettonArray) {
       (async () => {
-        checkTokenTransaction(tonAddress);
+        checkTokenTransaction();
         console.log("АДРЕС ТОН: ", tonAddress);
       })();
     }
