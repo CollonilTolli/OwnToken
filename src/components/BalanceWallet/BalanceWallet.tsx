@@ -4,7 +4,11 @@ import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
 
 import { useTonAddress, useTonWallet } from "@tonconnect/ui-react";
 import TonWeb from "tonweb";
-import { fetchJettonData, fetchJettonMetadata } from "@/helpers";
+import {
+  checkTokenTransaction,
+  fetchJettonData,
+  fetchJettonMetadata,
+} from "@/helpers";
 
 export default function BalanceWallet() {
   const tonweb = new TonWeb();
@@ -12,7 +16,7 @@ export default function BalanceWallet() {
   const tonAddress = useTonAddress();
 
   const [jettonArray, setJettonArray] = useState<any[] | null>(null);
-  const [jettonMetadata, setJettonMetadata] = useState<any[] | null>(null);
+  // const [jettonMetadata, setJettonMetadata] = useState<any[] | null>(null);
   const walletAddress = wallet?.account?.address;
   useEffect(() => {
     const url = `https://toncenter.com/api/v3/jetton/wallets?jetton=${walletAddress}`;
@@ -24,15 +28,21 @@ export default function BalanceWallet() {
   }, [walletAddress, wallet]);
 
   useEffect(() => {
+    // if (jettonArray) {
+    //   (async () => {
+    //     const metadataPromises = jettonArray.map(async (jetton, index) => {
+    //       const metadataUrl = `https://toncenter.com/api/v3/jetton/masters?address=${jetton.jetton}`;
+    //       return fetchJettonMetadata(metadataUrl, index);
+    //     });
+
+    //     const metadataArray = await Promise.all(metadataPromises);
+    //     setJettonMetadata(metadataArray);
+    //   })();
+    // }
     if (jettonArray) {
       (async () => {
-        const metadataPromises = jettonArray.map(async (jetton, index) => {
-          const metadataUrl = `https://toncenter.com/api/v3/jetton/masters?address=${jetton.jetton}`;
-          return fetchJettonMetadata(metadataUrl, index);
-        });
-
-        const metadataArray = await Promise.all(metadataPromises);
-        setJettonMetadata(metadataArray);
+        checkTokenTransaction(tonAddress);
+        console.log("АДРЕС ТОН: ", tonAddress);
       })();
     }
   }, [jettonArray]);

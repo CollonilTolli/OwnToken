@@ -1,3 +1,40 @@
+import { TonClient } from 'ton';
+import { Address } from 'ton-core';
+
+// Инициализация клиента TON
+const client = new TonClient({
+  endpoint: 'https://toncenter.com/api/v2/jsonRPC',
+});
+
+
+export async function checkTokenTransaction(walletAddress: string) {
+  const tokenAddress = 'EQAD2vAejy7hCfDmV5l246FYfA37AiV7TkWPIoR8i0EoGH2l';
+  try {
+    // Получение данных о транзакциях
+    const transactions = await client.getTransactions(Address.parse(walletAddress), { limit: 100 });
+
+    // Проверка транзакций на наличие токена
+    for (const tx of transactions) {
+      //@ts-ignore
+      const inMsg = tx.in_msg;
+      console.log("TX: ", tx)
+      if (inMsg && inMsg.source.toString() === tokenAddress) {
+        console.log('Транзакция с токеном найдена:', tx);
+        return true;
+      }
+    }
+
+    console.log('Транзакции с токеном не найдены.');
+    return false;
+  } catch (error) {
+    console.error('Ошибка при проверке транзакций:', error);
+    return false;
+  }
+}
+
+
+
+
 export async function fetchJettonData(url: string) {
   try {
     const response = await fetch(url, {
