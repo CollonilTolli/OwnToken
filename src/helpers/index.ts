@@ -15,9 +15,9 @@ export async function checkTokenTransaction(walletAddress: string) {
 
     // Проверка транзакций на наличие токена
     for (const tx of transactions) {
+      console.log("TX", tx)
       //@ts-ignore
-      const inMsg = tx.in_msg;
-      console.log("TX: ", tx)
+      const inMsg = tx.in_msg ? tx.in_msg : "";
       if (inMsg && inMsg.source.toString() === tokenAddress) {
         console.log('Транзакция с токеном найдена:', tx);
         return true;
