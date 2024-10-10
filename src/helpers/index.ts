@@ -12,12 +12,16 @@ export async function fetchJettonData(url: string) {
     }
 
     const data = await response.json();
-    console.log("Список jettons: ", data.jetton_wallets)
-    return data.jetton_wallets
+    console.log("Список jettons: ", data.jetton_wallets);
+
+    const uniqueJettons = Array.from(new Set(data.jetton_wallets.map((jetton: any) => jetton.jetton)))
+      .map(jettonAddress => data.jetton_wallets.find((jetton: any) => jetton.jetton === jettonAddress));
+
+    return uniqueJettons;
   } catch (error) {
-    console.log("url ", url)
+    console.log("url ", url);
     console.error("Ошибка:", error);
-    return null
+    return null;
   }
 }
 
