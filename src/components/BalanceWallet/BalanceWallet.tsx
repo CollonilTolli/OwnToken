@@ -11,34 +11,34 @@ import TonWeb from "tonweb";
 export default function BalanceWallet() {
   const wallet = useTonWallet();
   const tonAddress = useTonAddress(false);
-  const [jettonTransferHistory, setJettonTransferHistory] = useState<
-    any[] | null
-  >(null);
+  const [jettonTransfers, setJettonTransfers] = useState<any[] | null>(null);
   const [isTokenOwner, setIsTokenOwner] = useState(false);
   const [jettonBalance, setJettonBalance] = useState<string | null>(null);
-  const [jettonInfo, setJettonInfo] = useState<any | null>(null);
+  const [jettonInfo, setJettonInfo] = useState<any | null>(null); // Добавьте состояние для информации о токене
   const [jettonWalletAddress, setJettonWalletAddress] = useState<string | null>(
     null
-  );
-  const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
+  ); // Добавьте состояние для адреса кошелька джетона
+  const [jettonTransferHistory, setJettonTransferHistory] = useState<
+    any[] | null
+  >(null); // Добавьте состояние для истории транзакций
+  const [tonConnectUI, setOptions] = useTonConnectUI();
+  const jettonTokenAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
+  const jettonMasterAddress =
+    "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs"; // e.g., mainnet USDT
 
   useEffect(() => {
-    if (tonAddress && jettonMasterAddress) {
+    if (tonAddress) {
       fetchJettonMetadata(jettonMasterAddress);
       fetchJettonWalletAddress(jettonMasterAddress, tonAddress);
     }
-    console.log("jettonInfo", jettonInfo);
-    console.log("jettonMasterAddress", jettonMasterAddress);
-  }, [tonAddress, jettonMasterAddress, jettonInfo]);
+  }, [tonAddress]);
 
   useEffect(() => {
     if (jettonWalletAddress) {
       fetchJettonBalance(jettonWalletAddress);
       fetchJettonTransferHistory(jettonWalletAddress);
     }
-    console.log("jettonBalance", jettonBalance);
-    console.log("jettonTransferHistory", jettonTransferHistory);
-  }, [jettonWalletAddress, jettonInfo, jettonWalletAddress, jettonBalance]);
+  }, [jettonWalletAddress]);
 
   const fetchJettonMetadata = async (jettonMasterAddress: string) => {
     try {
@@ -50,7 +50,7 @@ export default function BalanceWallet() {
       const jettonMinter = new TonWeb.token.jetton.JettonMinter(
         tonweb.provider,
         {
-          address: jettonMasterAddress,
+          address: new TonWeb.utils.Address(jettonMasterAddress),
           adminAddress: new TonWeb.utils.Address(jettonMasterAddress), // Для примера, используем тот же адрес
           jettonContentUri: "", // Пустой URI для примера
           jettonWalletCodeHex: "", // Пустой код для примера
@@ -80,7 +80,7 @@ export default function BalanceWallet() {
       const jettonMinter = new TonWeb.token.jetton.JettonMinter(
         tonweb.provider,
         {
-          address: jettonMasterAddress,
+          address: new TonWeb.utils.Address(jettonMasterAddress),
           adminAddress: new TonWeb.utils.Address(jettonMasterAddress), // Для примера, используем тот же адрес
           jettonContentUri: "", // Пустой URI для примера
           jettonWalletCodeHex: "", // Пустой код для примера
@@ -125,7 +125,7 @@ export default function BalanceWallet() {
       );
       const jettonWallet = new TonWeb.token.jetton.JettonWallet(
         tonweb.provider,
-        { address: walletAddress }
+        { address: new TonWeb.utils.Address(walletAddress) }
       );
       const data = await jettonWallet.getData();
 
@@ -137,6 +137,7 @@ export default function BalanceWallet() {
       console.error("Error fetching jetton balance:", error);
     }
   };
+
   const fetchJettonTransferHistory = async (jettonWalletAddress: string) => {
     try {
       const tonweb = new TonWeb(
@@ -155,6 +156,7 @@ export default function BalanceWallet() {
       console.error("Error fetching jetton transfer history:", error);
     }
   };
+
   return (
     <Section header="Balance">
       {isTokenOwner ? (
@@ -196,6 +198,16 @@ export default function BalanceWallet() {
           Jetton Wallet Address
         </Cell>
       )}
+      {jettonTransfers &&
+        jettonTransfers.map((transfer: any, index: number) => (
+          <Cell
+            key={index}
+            after={<Info type="text">{transfer.amount}</Info>}
+            before={<Avatar size={48} src={transfer.image} />}
+          >
+            {transfer.symbol || `Jetton ${index + 1}`}
+          </Cell>
+        ))}
       {jettonTransferHistory &&
         jettonTransferHistory.map((tx: any, index: number) => (
           <Cell
