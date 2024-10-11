@@ -1,7 +1,5 @@
-export async function fetchJettonTransfers(address: string) {
-  const url = new URL('https://toncenter.com/api/v3/jetton/transfers');
-  url.searchParams.append('owner_address', address);
-
+export async function fetchJettonTransfers(JettonId: string, address: string) {
+  const url = new URL(`https://tonapi.io/v2/jettons/${JettonId}/transfer/${address}/payload`);
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error('Network response was not ok');

@@ -6,7 +6,6 @@ import { fetchJettonTransfers } from "@/helpers";
 import TonConnect from "@tonconnect/sdk";
 
 export default function BalanceWallet() {
-  const tonConnect = new TonConnect();
   const wallet = useTonWallet();
   const tonAddress = useTonAddress(false);
   const [jettonTransfers, setJettonTransfers] = useState<any[] | null>(null);
@@ -16,8 +15,8 @@ export default function BalanceWallet() {
   const jettonAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
 
   useEffect(() => {
-    if (tonAddress) {
-      fetchJettonTransfers(tonAddress)
+    if (tonAddress && jettonAddress) {
+      fetchJettonTransfers(jettonAddress, tonAddress)
         .then((data) => {
           setJettonTransfers(data);
           const isOwner = data.some(
@@ -31,15 +30,6 @@ export default function BalanceWallet() {
     }
   }, [tonAddress, jettonAddress, wallet]);
 
-  useEffect(() => {
-    (async () => {
-      // const balance = await tonConnect.getBalance(tonAddress, jettonAddress);
-      // setTokenBalance(balance)
-      const wallets = await tonConnect.getWallets();
-      setTokenBalance(wallets);
-      console.log(tokenBalance);
-    })();
-  }, [tonConnect]);
   return (
     <Section header="Balance">
       {isTokenOwner ? (
