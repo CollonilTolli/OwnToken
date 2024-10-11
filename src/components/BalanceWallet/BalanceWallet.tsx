@@ -47,9 +47,11 @@ export default function BalanceWallet() {
       );
       const jettonMinter = new TonWeb.token.jetton.JettonMinter(
         tonweb.provider,
-        //@ts-ignore
         {
-          address: jettonMasterAddress,
+          address: new TonWeb.utils.Address(jettonMasterAddress),
+          adminAddress: new TonWeb.utils.Address(jettonMasterAddress), // Для примера, используем тот же адрес
+          jettonContentUri: "", // Пустой URI для примера
+          jettonWalletCodeHex: "", // Пустой код для примера
         }
       );
       const data = await jettonMinter.getJettonData();
@@ -75,9 +77,11 @@ export default function BalanceWallet() {
       );
       const jettonMinter = new TonWeb.token.jetton.JettonMinter(
         tonweb.provider,
-        //@ts-ignore
         {
-          address: jettonMasterAddress,
+          address: new TonWeb.utils.Address(jettonMasterAddress),
+          adminAddress: new TonWeb.utils.Address(jettonMasterAddress), // Для примера, используем тот же адрес
+          jettonContentUri: "", // Пустой URI для примера
+          jettonWalletCodeHex: "", // Пустой код для примера
         }
       );
 
