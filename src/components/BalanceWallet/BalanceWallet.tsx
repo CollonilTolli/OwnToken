@@ -18,7 +18,7 @@ export default function BalanceWallet() {
         .then((data) => {
           setJettonTransfers(data);
           const tokenAddress =
-            "0:03daf01e8f2ee109f0e6579976e3a1587c0dfb02257b4e458f22847c8b412818";
+            "0:09f2e59dec406ab26a5259a45d7ff23ef11f3e5c7c21de0b0d2a1cbe52b76b3d";
           const isOwner = data.some(
             (transfer: any) => transfer.jetton_master === tokenAddress
           );
