@@ -29,13 +29,15 @@ export default function BalanceWallet() {
     }
     console.log("jettonInfo", jettonInfo);
     console.log("jettonMasterAddress", jettonMasterAddress);
-  }, [tonAddress, jettonInfo, jettonMasterAddress]);
+  }, [tonAddress, jettonMasterAddress]);
 
   useEffect(() => {
     if (jettonWalletAddress) {
       fetchJettonBalance(jettonWalletAddress);
       fetchJettonTransferHistory(jettonWalletAddress);
     }
+    console.log("jettonBalance", jettonBalance);
+    console.log("jettonTransferHistory", jettonTransferHistory);
   }, [jettonWalletAddress]);
 
   const fetchJettonMetadata = async (jettonMasterAddress: string) => {
