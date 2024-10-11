@@ -14,7 +14,7 @@ export default function BalanceWallet() {
 
   useEffect(() => {
     if (walletAddress) {
-      fetchJettonTransfers(walletAddress)
+      fetchJettonTransfers("UQA8z5CRRr7-uexcyPNg1yqb310vgFCd0k3SL2mvOQeaWfQc")
         .then((data) => {
           setJettonTransfers(data);
           const tokenAddress =
