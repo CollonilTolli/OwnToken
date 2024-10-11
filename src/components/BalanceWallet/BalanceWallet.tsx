@@ -29,7 +29,7 @@ export default function BalanceWallet() {
     }
     console.log("jettonInfo", jettonInfo);
     console.log("jettonMasterAddress", jettonMasterAddress);
-  }, [tonAddress, jettonMasterAddress]);
+  }, [tonAddress, jettonMasterAddress, jettonInfo]);
 
   useEffect(() => {
     if (jettonWalletAddress) {
@@ -38,7 +38,7 @@ export default function BalanceWallet() {
     }
     console.log("jettonBalance", jettonBalance);
     console.log("jettonTransferHistory", jettonTransferHistory);
-  }, [jettonWalletAddress, jettonInfo]);
+  }, [jettonWalletAddress, jettonInfo, jettonWalletAddress, jettonBalance]);
 
   const fetchJettonMetadata = async (jettonMasterAddress: string) => {
     try {
