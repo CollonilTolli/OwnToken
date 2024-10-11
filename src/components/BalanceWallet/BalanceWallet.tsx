@@ -15,6 +15,7 @@ export default function BalanceWallet() {
   const jettonAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
 
   useEffect(() => {
+    console.log(`tonAddress: ${tonAddress} \n tonAddress: ${tonAddress}`);
     if (tonAddress && jettonAddress) {
       fetchJettonTransfers(jettonAddress, tonAddress)
         .then((data) => {
