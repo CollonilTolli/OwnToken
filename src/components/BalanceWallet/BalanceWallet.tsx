@@ -3,22 +3,25 @@ import { useState, useEffect } from "react";
 import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
 import { useTonAddress, useTonWallet } from "@tonconnect/ui-react";
 import { fetchJettonTransfers } from "@/helpers";
+import TonConnect from "@tonconnect/sdk";
 
 export default function BalanceWallet() {
+  const tonConnect = new TonConnect();
   const wallet = useTonWallet();
   const tonAddress = useTonAddress(false);
   const [jettonTransfers, setJettonTransfers] = useState<any[] | null>(null);
   const [isTokenOwner, setIsTokenOwner] = useState(false);
+  const [tokenBalance, setTokenBalance] = useState<any[] | null>(null);
+
+  const jettonAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
 
   useEffect(() => {
     if (tonAddress) {
       fetchJettonTransfers(tonAddress)
         .then((data) => {
           setJettonTransfers(data);
-          const tokenAddress =
-            "0:afc49cb8786f21c87045b19ede78fc6b46c51048513f8e9a6d44060199c1bf0c";
           const isOwner = data.some(
-            (transfer: any) => transfer.jetton_master === tokenAddress
+            (transfer: any) => transfer.jetton_master === jettonAddress
           );
           setIsTokenOwner(isOwner);
         })
@@ -26,8 +29,17 @@ export default function BalanceWallet() {
           console.error("Error fetching jetton transfers:", error);
         });
     }
-  }, [tonAddress, wallet]);
+  }, [tonAddress, jettonAddress, wallet]);
 
+  useEffect(() => {
+    (async () => {
+      // const balance = await tonConnect.getBalance(tonAddress, jettonAddress);
+      // setTokenBalance(balance)
+      const wallets = await tonConnect.getWallets();
+      setTokenBalance(wallets);
+      console.log(tokenBalance);
+    })();
+  }, [tonConnect]);
   return (
     <Section header="Balance">
       {isTokenOwner ? (
