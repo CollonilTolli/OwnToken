@@ -1,67 +1,13 @@
-import { TonClient } from 'ton';
-import { Address } from 'ton-core';
+export async function fetchJettonTransfers(address: string) {
+  const url = new URL('https://toncenter.com/api/v3/jetton/transfers');
+  url.searchParams.append('owner_address', address);
 
-// Инициализация клиента TON
-const client = new TonClient({
-  endpoint: 'https://toncenter.com/api/v2/jsonRPC',
-});
-
-
-export async function checkTokenTransaction() {
-  const walletAddress = "UQCVFBBd9zrURbNHgTOHsjq8eyPm8rK7sxYGHNhorw8e7UE5"
-  const tokenAddress = 'EQAD2vAejy7hCfDmV5l246FYfA37AiV7TkWPIoR8i0EoGH2l';
-  try {
-    // Получение данных о транзакциях
-    const transactions = await client.getTransactions(Address.parse(walletAddress), { limit: 100 });
-
-    // Проверка транзакций на наличие токена
-    for (const tx of transactions) {
-      console.log("TX", tx)
-      //@ts-ignore
-      const inMsg = tx.in_msg ? tx.in_msg : "";
-      if (inMsg && inMsg.source.toString() === tokenAddress) {
-        console.log('Транзакция с токеном найдена:', tx);
-        return true;
-      }
-    }
-
-    console.log('Транзакции с токеном не найдены.');
-    return false;
-  } catch (error) {
-    console.error('Ошибка при проверке транзакций:', error);
-    return false;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
   }
-}
-
-
-
-
-export async function fetchJettonData(url: string) {
-  try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    const uniqueJettons = Array.from(new Set(data.jetton_wallets.map((jetton: any) => jetton.jetton)))
-      .map(jettonAddress => data.jetton_wallets.find((jetton: any) => jetton.jetton === jettonAddress));
-
-    console.log("Список jettons: ", uniqueJettons);
-
-    return uniqueJettons;
-  } catch (error) {
-    console.log("url ", url);
-    console.error("Ошибка:", error);
-    return null;
-  }
+  const data = await response.json();
+  return data.jetton_transfers;
 }
 
 export async function fetchJettonMetadata(url: string, index: number) {
