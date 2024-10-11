@@ -11,7 +11,9 @@ import TonWeb from "tonweb";
 export default function BalanceWallet() {
   const wallet = useTonWallet();
   const tonAddress = useTonAddress(false);
-  const [jettonTransfers, setJettonTransfers] = useState<any[] | null>(null);
+  const [jettonTransferHistory, setJettonTransferHistory] = useState<
+    any[] | null
+  >(null);
   const [isTokenOwner, setIsTokenOwner] = useState(false);
   const [jettonBalance, setJettonBalance] = useState<string | null>(null);
   const [jettonInfo, setJettonInfo] = useState<any | null>(null);
@@ -31,6 +33,7 @@ export default function BalanceWallet() {
   useEffect(() => {
     if (jettonWalletAddress) {
       fetchJettonBalance(jettonWalletAddress);
+      fetchJettonTransferHistory(jettonWalletAddress);
     }
   }, [jettonWalletAddress]);
 
@@ -131,6 +134,24 @@ export default function BalanceWallet() {
       console.error("Error fetching jetton balance:", error);
     }
   };
+  const fetchJettonTransferHistory = async (jettonWalletAddress: string) => {
+    try {
+      const tonweb = new TonWeb(
+        new TonWeb.HttpProvider(
+          "https://ton-mainnet.core.chainstack.com/7d3fbedb3a3fe58eee4db369bec8cfec/api/v2/jsonRPC"
+        )
+      );
+      const limit = 10;
+      const transactions = await tonweb.provider.getTransactions(
+        jettonWalletAddress,
+        limit
+      );
+
+      setJettonTransferHistory(transactions);
+    } catch (error) {
+      console.error("Error fetching jetton transfer history:", error);
+    }
+  };
   return (
     <Section header="Balance">
       {isTokenOwner ? (
@@ -172,14 +193,21 @@ export default function BalanceWallet() {
           Jetton Wallet Address
         </Cell>
       )}
-      {jettonTransfers &&
-        jettonTransfers.map((transfer: any, index: number) => (
+      {jettonTransferHistory &&
+        jettonTransferHistory.map((tx: any, index: number) => (
           <Cell
             key={index}
-            after={<Info type="text">{transfer.amount}</Info>}
-            before={<Avatar size={48} src={transfer.image} />}
+            after={
+              <Info type="text">{new Date(tx.utime * 1000).toISOString()}</Info>
+            }
+            before={
+              <Avatar
+                size={48}
+                src="https://cache.tonapi.io/imgproxy/FEqFdmn6fBXy0TLzRr1mTQOqP4E3LqBBAO6pKENYur0/rs:fill:200:200:1/g:no/aHR0cHM6Ly9pLmliYi5jby9jTGNuVHd4L2ltYWdlLmpwZw.webp"
+              />
+            }
           >
-            {transfer.symbol || `Jetton ${index + 1}`}
+            Transaction {index + 1}
           </Cell>
         ))}
     </Section>
