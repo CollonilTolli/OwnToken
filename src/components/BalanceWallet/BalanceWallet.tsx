@@ -38,7 +38,7 @@ export default function BalanceWallet() {
     }
     console.log("jettonBalance", jettonBalance);
     console.log("jettonTransferHistory", jettonTransferHistory);
-  }, [jettonWalletAddress]);
+  }, [jettonWalletAddress, jettonInfo]);
 
   const fetchJettonMetadata = async (jettonMasterAddress: string) => {
     try {
