@@ -49,7 +49,7 @@ export default function BalanceWallet() {
 
       const tonweb = new TonWeb(
         new TonWeb.HttpProvider(
-          "https://ton-mainnet.core.chainstack.com/your-project-id/api/v2/jsonRPC"
+          "https://ton-mainnet.core.chainstack.com/7d3fbedb3a3fe58eee4db369bec8cfec/api/v2/jsonRPC"
         )
       );
 
