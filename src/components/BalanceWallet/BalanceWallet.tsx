@@ -6,57 +6,77 @@ import {
   useTonConnectUI,
   useTonWallet,
 } from "@tonconnect/ui-react";
+import TonWeb from "tonweb";
 
 export default function BalanceWallet() {
   const wallet = useTonWallet();
   const tonAddress = useTonAddress(false);
   const [jettonTransfers, setJettonTransfers] = useState<any[] | null>(null);
   const [isTokenOwner, setIsTokenOwner] = useState(false);
-  const [jettonBalance, setJettonBalance] = useState<string | null>(null); // Добавьте состояние для баланса
-  const [tonConnectUI, setOptions] = useTonConnectUI();
-  const jettonTokenAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
+  const [jettonBalance, setJettonBalance] = useState<string | null>(null);
+  const [jettonInfo, setJettonInfo] = useState<any | null>(null);
+  const [jettonWalletAddress, setJettonWalletAddress] = useState<string | null>(
+    null
+  );
+  const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
 
   useEffect(() => {
-    const fetchTokenData = async () => {
-      if (jettonTokenAddress) {
-        // Получаем адрес кошелька
-        const jettonWalletAddress = await fetchJettonWalletAddress(
-          jettonTokenAddress,
-          tonAddress
-        );
-        if (jettonWalletAddress) {
-          setIsTokenOwner(true);
-
-          // Получаем баланс
-          const balance = await fetchJettonBalance(jettonWalletAddress);
-          setJettonBalance(balance);
-        }
-      }
-    };
-
-    if (tonAddress) {
-      fetchTokenData();
+    if (tonAddress && jettonMasterAddress) {
+      fetchJettonMetadata(jettonMasterAddress);
+      fetchJettonWalletAddress(jettonMasterAddress, tonAddress);
     }
-  }, [tonAddress, jettonTokenAddress]);
+  }, [tonAddress]);
 
-  // Функция для получения адреса кошелька (осталась без изменений)
-  const fetchJettonWalletAddress = async (
-    jettonMasterAddress: string,
-    ownerWalletAddress: string
-  ): Promise<string | null> => {
+  useEffect(() => {
+    if (jettonWalletAddress) {
+      fetchJettonBalance(jettonWalletAddress);
+    }
+  }, [jettonWalletAddress]);
+
+  const fetchJettonMetadata = async (jettonMasterAddress: string) => {
     try {
-      const TonWeb = require("tonweb");
-
       const tonweb = new TonWeb(
         new TonWeb.HttpProvider(
           "https://ton-mainnet.core.chainstack.com/7d3fbedb3a3fe58eee4db369bec8cfec/api/v2/jsonRPC"
         )
       );
-
       const jettonMinter = new TonWeb.token.jetton.JettonMinter(
         tonweb.provider,
         {
           address: jettonMasterAddress,
+          adminAddress: new TonWeb.utils.Address(jettonMasterAddress), // Для примера, используем тот же адрес
+          jettonContentUri: "", // Пустой URI для примера
+          jettonWalletCodeHex: "", // Пустой код для примера
+        }
+      );
+      const data = await jettonMinter.getJettonData();
+
+      setJettonInfo({
+        totalSupply: data.totalSupply.toString(),
+        jettonContentUri: data.jettonContentUri,
+      });
+    } catch (error) {
+      console.error("Error fetching jetton metadata:", error);
+    }
+  };
+
+  const fetchJettonWalletAddress = async (
+    jettonMasterAddress: string,
+    ownerWalletAddress: string
+  ) => {
+    try {
+      const tonweb = new TonWeb(
+        new TonWeb.HttpProvider(
+          "https://ton-mainnet.core.chainstack.com/7d3fbedb3a3fe58eee4db369bec8cfec/api/v2/jsonRPC"
+        )
+      );
+      const jettonMinter = new TonWeb.token.jetton.JettonMinter(
+        tonweb.provider,
+        {
+          address: jettonMasterAddress,
+          adminAddress: new TonWeb.utils.Address(jettonMasterAddress), // Для примера, используем тот же адрес
+          jettonContentUri: "", // Пустой URI для примера
+          jettonWalletCodeHex: "", // Пустой код для примера
         }
       );
 
@@ -76,44 +96,40 @@ export default function BalanceWallet() {
       // Verify that the Jetton Minter address matches
       if (
         jettonData.jettonMinterAddress.toString(false) !==
-        jettonMinter.address.toString(false)
+        jettonMinter.address?.toString(false)
       ) {
         throw new Error(
           "Jetton minter address from jetton wallet does not match the expected minter address"
         );
       }
 
-      return jettonWalletAddress.toString(true, true, true);
+      setJettonWalletAddress(jettonWalletAddress.toString(true, true, true));
     } catch (error) {
       console.error("Error fetching jetton wallet address:", error);
-      return null;
     }
   };
 
-  // Функция для получения баланса Jetton
   const fetchJettonBalance = async (walletAddress: string) => {
     try {
-      const TonWeb = require("tonweb");
-
       const tonweb = new TonWeb(
         new TonWeb.HttpProvider(
-          "https://ton-mainnet.core.chainstack.com/your-project-id/api/v2/jsonRPC"
+          "https://ton-mainnet.core.chainstack.com/7d3fbedb3a3fe58eee4db369bec8cfec/api/v2/jsonRPC"
         )
       );
-
       const jettonWallet = new TonWeb.token.jetton.JettonWallet(
         tonweb.provider,
         { address: walletAddress }
       );
       const data = await jettonWallet.getData();
 
-      return data.balance.toString();
+      setJettonBalance(data.balance.toString());
+      setIsTokenOwner(
+        data.ownerAddress.toString(true, true, true) === tonAddress
+      );
     } catch (error) {
       console.error("Error fetching jetton balance:", error);
-      return null;
     }
   };
-
   return (
     <Section header="Balance">
       {isTokenOwner ? (
@@ -127,8 +143,7 @@ export default function BalanceWallet() {
           }
         >
           WOT Token
-          {jettonBalance && <Info type="text">{jettonBalance}</Info>}{" "}
-          {/* Отображение баланса */}
+          {jettonBalance && <Info type="text">{jettonBalance}</Info>}
         </Cell>
       ) : (
         <Cell
@@ -141,6 +156,19 @@ export default function BalanceWallet() {
           }
         >
           WOT Token
+        </Cell>
+      )}
+      {jettonInfo && (
+        <Cell
+          after={<Info type="text">{jettonInfo.totalSupply}</Info>}
+          before={<Avatar size={48} src={jettonInfo.jettonContentUri} />}
+        >
+          Jetton Metadata
+        </Cell>
+      )}
+      {jettonWalletAddress && (
+        <Cell after={<Info type="text">{jettonWalletAddress}</Info>}>
+          Jetton Wallet Address
         </Cell>
       )}
       {jettonTransfers &&
