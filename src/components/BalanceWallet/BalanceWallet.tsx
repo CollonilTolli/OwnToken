@@ -1,35 +1,97 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Section, Cell, Info, Avatar } from "@telegram-apps/telegram-ui";
-import { useTonAddress, useTonWallet } from "@tonconnect/ui-react";
+import {
+  useTonAddress,
+  useTonConnectUI,
+  useTonWallet,
+} from "@tonconnect/ui-react";
 import { fetchJettonTransfers } from "@/helpers";
-import TonConnect from "@tonconnect/sdk";
 
 export default function BalanceWallet() {
   const wallet = useTonWallet();
   const tonAddress = useTonAddress(false);
   const [jettonTransfers, setJettonTransfers] = useState<any[] | null>(null);
   const [isTokenOwner, setIsTokenOwner] = useState(false);
-  const [tokenBalance, setTokenBalance] = useState<any[] | null>(null);
-
-  const jettonAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
+  const [tonConnectUI, setOptions] = useTonConnectUI();
+  const jettonTokenAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
 
   useEffect(() => {
-    console.log(`tonAddress: ${tonAddress} \n jettonAddress: ${jettonAddress}`);
-    if (tonAddress && jettonAddress) {
-      fetchJettonTransfers(jettonAddress, tonAddress)
-        .then((data) => {
-          setJettonTransfers(data);
-          const isOwner = data.some(
-            (transfer: any) => transfer.jetton_master === jettonAddress
-          );
-          setIsTokenOwner(isOwner);
-        })
-        .catch((error) => {
-          console.error("Error fetching jetton transfers:", error);
-        });
+    const fetchTokenData = async () => {
+      if (jettonTokenAddress) {
+        // Используем вашу функцию fetchJettonWalletAddress, чтобы проверить, является ли пользователь владельцем токена
+        const isOwner = await fetchJettonWalletAddress(
+          jettonTokenAddress,
+          tonAddress
+        );
+        setIsTokenOwner(isOwner);
+
+        // Получаем историю транзакций, используя ваш код
+        const transfers = await fetchJettonTransfers(
+          jettonTokenAddress,
+          tonAddress
+        );
+        setJettonTransfers(transfers);
+      }
+    };
+
+    if (tonAddress) {
+      fetchTokenData();
     }
-  }, [tonAddress, jettonAddress, wallet]);
+  }, [tonAddress, jettonTokenAddress]);
+
+  // Добавьте эту функцию в ваш компонент
+  const fetchJettonWalletAddress = async (
+    jettonMasterAddress: string,
+    ownerWalletAddress: string
+  ): Promise<boolean> => {
+    try {
+      const TonWeb = require("tonweb");
+
+      const tonweb = new TonWeb(
+        new TonWeb.HttpProvider(
+          "https://ton-mainnet.core.chainstack.com/.../api/v2/jsonRPC"
+        )
+      );
+
+      const jettonMinter = new TonWeb.token.jetton.JettonMinter(
+        tonweb.provider,
+        {
+          address: jettonMasterAddress,
+        }
+      );
+
+      const jettonWalletAddress = await jettonMinter.getJettonWalletAddress(
+        new TonWeb.utils.Address(ownerWalletAddress)
+      );
+
+      const jettonWallet = new TonWeb.token.jetton.JettonWallet(
+        tonweb.provider,
+        {
+          address: jettonWalletAddress,
+        }
+      );
+
+      const jettonData = await jettonWallet.getData();
+
+      // Verify that the Jetton Minter address matches
+      if (
+        jettonData.jettonMinterAddress.toString(false) !==
+        jettonMinter.address.toString(false)
+      ) {
+        throw new Error(
+          "Jetton minter address from jetton wallet does not match the expected minter address"
+        );
+      }
+
+      // Возвращаем true, если пользователь является владельцем токена
+      return true;
+    } catch (error) {
+      console.error("Error fetching jetton wallet address:", error);
+      // Возвращаем false, если произошла ошибка
+      return false;
+    }
+  };
 
   return (
     <Section header="Balance">
