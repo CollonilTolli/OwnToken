@@ -6,7 +6,6 @@ import {
   useTonConnectUI,
   useTonWallet,
 } from "@tonconnect/ui-react";
-import { fetchJettonTransfers } from "@/helpers";
 
 export default function BalanceWallet() {
   const wallet = useTonWallet();
@@ -27,11 +26,8 @@ export default function BalanceWallet() {
         setIsTokenOwner(isOwner);
 
         // Получаем историю транзакций, используя ваш код
-        const transfers = await fetchJettonTransfers(
-          jettonTokenAddress,
-          tonAddress
-        );
-        setJettonTransfers(transfers);
+
+        setJettonTransfers([]);
       }
     };
 
@@ -50,7 +46,7 @@ export default function BalanceWallet() {
 
       const tonweb = new TonWeb(
         new TonWeb.HttpProvider(
-          "https://ton-mainnet.core.chainstack.com/.../api/v2/jsonRPC"
+          "https://ton-mainnet.core.chainstack.com/7d3fbedb3a3fe58eee4db369bec8cfec/api/v2/jsonRPC"
         )
       );
 
