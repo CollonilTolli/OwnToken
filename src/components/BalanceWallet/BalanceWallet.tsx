@@ -32,8 +32,6 @@ export default function BalanceWallet() {
 
   return (
     <Section header="Balance">
-      {JSON.stringify(wallet)}
-      {JSON.stringify(tonAddress)}
       {isTokenOwner ? (
         <Cell
           after={<Info type="text">Owner</Info>}
