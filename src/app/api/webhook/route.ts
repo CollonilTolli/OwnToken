@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
         [
           {
             text: 'connect wallet',
-            url: 'https://own-token.vercel.app/',
+            url: 'https://t.me/own_test_stand_bot?start=0',
           },
         ],
       ],
