@@ -22,16 +22,14 @@ export default function BalanceWallet() {
     any[] | null
   >(null); // Добавьте состояние для истории транзакций
   const [tonConnectUI, setOptions] = useTonConnectUI();
-  const jettonTokenAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
-  const jettonMasterAddress =
-    "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs"; // e.g., mainnet USDT
+  const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
 
   useEffect(() => {
-    if (tonAddress) {
+    if (tonAddress && jettonMasterAddress) {
       fetchJettonMetadata(jettonMasterAddress);
       fetchJettonWalletAddress(jettonMasterAddress, tonAddress);
     }
-  }, [tonAddress]);
+  }, [tonAddress, jettonMasterAddress]);
 
   useEffect(() => {
     if (jettonWalletAddress) {
