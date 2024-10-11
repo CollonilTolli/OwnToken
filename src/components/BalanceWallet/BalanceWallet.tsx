@@ -6,15 +6,13 @@ import { fetchJettonTransfers } from "@/helpers";
 
 export default function BalanceWallet() {
   const wallet = useTonWallet();
-  const tonAddress = useTonAddress();
+  const tonAddress = useTonAddress(false);
   const [jettonTransfers, setJettonTransfers] = useState<any[] | null>(null);
   const [isTokenOwner, setIsTokenOwner] = useState(false);
 
-  const walletAddress = wallet?.account?.address;
-
   useEffect(() => {
-    if (walletAddress) {
-      fetchJettonTransfers("UQA8z5CRRr7-uexcyPNg1yqb310vgFCd0k3SL2mvOQeaWfQc")
+    if (tonAddress) {
+      fetchJettonTransfers(tonAddress)
         .then((data) => {
           setJettonTransfers(data);
           const tokenAddress =
@@ -28,7 +26,7 @@ export default function BalanceWallet() {
           console.error("Error fetching jetton transfers:", error);
         });
     }
-  }, [walletAddress, wallet]);
+  }, [tonAddress, wallet]);
 
   return (
     <Section header="Balance">
