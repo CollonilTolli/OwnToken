@@ -27,8 +27,9 @@ export default function BalanceWallet() {
       fetchJettonMetadata(jettonMasterAddress);
       fetchJettonWalletAddress(jettonMasterAddress, tonAddress);
     }
-    console.log(jettonInfo);
-  }, [tonAddress]);
+    console.log("jettonInfo", jettonInfo);
+    console.log("jettonMasterAddress", jettonMasterAddress);
+  }, [tonAddress, jettonInfo, jettonMasterAddress]);
 
   useEffect(() => {
     if (jettonWalletAddress) {
