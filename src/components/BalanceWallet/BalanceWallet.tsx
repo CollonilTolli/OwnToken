@@ -14,11 +14,11 @@ export default function BalanceWallet() {
 
   useEffect(() => {
     if (walletAddress) {
-      fetchJettonTransfers("UQA8z5CRRr7-uexcyPNg1yqb310vgFCd0k3SL2mvOQeaWfQc")
+      fetchJettonTransfers(walletAddress)
         .then((data) => {
           setJettonTransfers(data);
           const tokenAddress =
-            "0:09f2e59dec406ab26a5259a45d7ff23ef11f3e5c7c21de0b0d2a1cbe52b76b3d";
+            "0:afc49cb8786f21c87045b19ede78fc6b46c51048513f8e9a6d44060199c1bf0c";
           const isOwner = data.some(
             (transfer: any) => transfer.jetton_master === tokenAddress
           );
