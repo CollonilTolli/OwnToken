@@ -201,11 +201,15 @@ export default function BalanceWallet() {
             {jettonBalance && <Info type="text">{jettonBalance}</Info>}
           </Cell>
           <Cell>
-            <a href={channelLink} target="_blank">
-              <Button mode="filled" size="l">
-                Private Telegram Chammel
-              </Button>
-            </a>
+            <Button
+              Component="a"
+              href={channelLink}
+              mode="filled"
+              size="l"
+              target="_blank"
+            >
+              Private Telegram Chammel
+            </Button>{" "}
           </Cell>
         </>
       ) : (
