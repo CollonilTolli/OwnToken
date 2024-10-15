@@ -10,7 +10,6 @@ import {
 import { useTonAddress } from "@tonconnect/ui-react";
 import TonWeb from "tonweb";
 import { getInviteLink, removeUser } from "@/helpers";
-import { useInitData } from "@vkruglikov/react-telegram-web-app";
 
 export default function BalanceWallet() {
   const tonAddress = useTonAddress(false);
