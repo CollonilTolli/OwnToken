@@ -3,7 +3,7 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-const TELEGRAM_BOT_TOKEN = process.env.NEXT_PUBLIC_BOT_TOKEN;
+const TELEGRAM_BOT_TOKEN = process.env.BOT_TOKEN;
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 const WEBHOOK_URL = 'https://own-token.vercel.app/api/webhook';
 
