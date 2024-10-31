@@ -1,11 +1,9 @@
-// app/api/setWebhook/route.js
-
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
 const TELEGRAM_BOT_TOKEN = process.env.BOT_TOKEN;
-const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
-const WEBHOOK_URL = 'https://own-token.vercel.app/api/webhook';
+const TELEGRAM_API_URL = `https://api.telegram.org/bot${process.env.BOT_TOKEN}`;
+const WEBHOOK_URL = `https://${process.env.APP_LINK}/api/webhook`;
 
 export async function GET() {
   try {

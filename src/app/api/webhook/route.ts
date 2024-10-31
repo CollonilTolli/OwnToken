@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
         [
           {
             text: 'connect wallet',
-            url: 'https://t.me/own_test_stand_bot/WOT_test',
+            url:`https://t.me/${process.env.NEXT_PUBLIC_BOT_USERNAME}/${process.env.NEXT_PUBLIC_APP_NAME}`,
           },
         ],
       ],
