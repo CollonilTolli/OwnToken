@@ -4,6 +4,7 @@ import axios from 'axios';
 const TELEGRAM_BOT_TOKEN = process.env.BOT_TOKEN;
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
+
 export async function POST(request: NextRequest) {
   const { message } = await request.json();
   if (message && message.text === '/start') {
