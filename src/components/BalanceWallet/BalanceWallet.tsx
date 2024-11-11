@@ -178,14 +178,14 @@ export default function BalanceWallet() {
 
   return (
     <Section header="Balance">
-      <Button
+    {/* <Button
         Component="button"
         onClick={() => setIsTokenOwner(!isTokenOwner)}
         mode="bezeled"
         size="m"
       >
         Owner?
-      </Button>
+      </Button> */}
       {isTokenOwner ? (
         <>
           <Cell
@@ -208,7 +208,7 @@ export default function BalanceWallet() {
               size="l"
               target="_blank"
             >
-              Private Telegram Chammel
+              Private Telegram Сhannel
             </Button>{" "}
           </Cell>
         </>
