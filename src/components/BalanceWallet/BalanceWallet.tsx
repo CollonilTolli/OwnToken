@@ -40,16 +40,11 @@ export default function BalanceWallet() {
   }, [loadingBalance, loadingHistory, loadingWallet]);
 
   useEffect(() => {
-    if (!isLoading) {
-      if (window) {
-        //@ts-ignore
-        let tg = window.Telegram.WebApp;
-        // setTimeout(() => {
-        //   // Задержка 100 мс
-          if (!isTokenOwner && tg.initDataUnsafe) {
-            removeUser(tg.initDataUnsafe.user.id);
-          }
-        // }, 100);
+    if (window) {
+      //@ts-ignore
+      let tg = window.Telegram.WebApp;
+      if (!isTokenOwner && tg.initDataUnsafe && !isLoading) {
+        removeUser(tg.initDataUnsafe.user.id);
       }
     }
   }, [isLoading, isTokenOwner]);
