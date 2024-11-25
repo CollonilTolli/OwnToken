@@ -81,9 +81,9 @@ export default function BalanceWallet() {
 
   return (
     <Section header="Balance">
-      {jettonWalletAddress?.toString()}
-      {jettonBalance?.toString()}
-      {jettonTransferHistory?.join()}
+      <div> 1 {jettonWalletAddress?.toString()}</div>
+      <div>2 {jettonBalance?.toString()}</div>
+      <div>3 {jettonTransferHistory?.join()}</div>
       {isTokenOwner ? (
         <>
           <Cell
