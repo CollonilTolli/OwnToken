@@ -26,7 +26,6 @@ export default function BalanceWallet() {
 
   const {
     jettonBalance,
-    isTokenOwnerFromBalance,
     loadingBalance,
     errorBalance,
   } = useJettonBalance(jettonWalletAddress || "", tonAddress || "");
@@ -55,7 +54,7 @@ export default function BalanceWallet() {
         );
       }
     }
-  }, [isTokenOwnerFromBalance, jettonTransferHistory]);
+  }, [jettonBalance, jettonTransferHistory]);
 
   useEffect(() => {
     if (isTokenOwner) {
@@ -73,19 +72,14 @@ export default function BalanceWallet() {
 
   if (loadingBalance || loadingHistory || loadingWallet) {
     return (
-      <div>
-        <Spinner size="m" />
+      <div className="loaderContainer">
+        <Spinner size="l" />
       </div>
     );
   }
 
   return (
     <Section header="Balance">
-      <div> 1 {jettonWalletAddress?.toString()}</div>
-      <div>2 {jettonBalance?.toString()}</div>
-      <div>3{ jettonTransferHistory && jettonTransferHistory.length}</div>
-      <div>4 {isTokenOwner? "owner" : "not owner" }</div>
-      <div>5 {isTokenOwnerFromBalance? "isTokenOwnerFromBalance" : "not isTokenOwnerFromBalance" }</div>
       {isTokenOwner ? (
         <>
           <Cell
@@ -108,7 +102,7 @@ export default function BalanceWallet() {
               size="l"
               target="_blank"
             >
-              Private Telegram Chammel
+              Private Telegram Channel
             </Button>{" "}
           </Cell>
         </>

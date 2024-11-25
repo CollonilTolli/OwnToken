@@ -3,7 +3,6 @@ import TonWeb from 'tonweb';
 
 const useJettonBalance = (walletAddress: string, tonAddress: string) => {
   const [jettonBalance, setJettonBalance] = useState<string | null>(null);
-  const [isTokenOwnerFromBalance, setisTokenOwnerFromBalance] = useState<boolean | null>(null);
   const [loadingBalance, setLoadingBalance] = useState(false);
   const [errorBalance, setErrorBalance] = useState<string | null>(null);
 
@@ -23,8 +22,7 @@ const useJettonBalance = (walletAddress: string, tonAddress: string) => {
         );
         const data = await jettonWallet.getData();
 
-        setJettonBalance(data.balance.toString());
-        setisTokenOwnerFromBalance(data.ownerAddress.toString(true, true, true) === tonAddress);
+        setJettonBalance(data.balance.toString()); 
       } catch (errorBalance: any) {
         setErrorBalance(errorBalance.message);
       } finally {
@@ -35,12 +33,11 @@ const useJettonBalance = (walletAddress: string, tonAddress: string) => {
     if (walletAddress && tonAddress) {
       fetchBalance();
     } else {
-      setJettonBalance(null);
-      setisTokenOwnerFromBalance(null);
+      setJettonBalance(null); 
     }
   }, [walletAddress, tonAddress]);
 
-  return { jettonBalance, isTokenOwnerFromBalance, loadingBalance, errorBalance };
+  return { jettonBalance, loadingBalance, errorBalance };
 };
 
 export default useJettonBalance;
