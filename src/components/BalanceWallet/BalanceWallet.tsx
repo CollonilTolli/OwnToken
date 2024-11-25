@@ -18,7 +18,7 @@ export default function BalanceWallet() {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
-  const [channelLink, setChannelLink] = useState(""); 
+  const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
@@ -33,12 +33,12 @@ export default function BalanceWallet() {
     useJettonTransferHistory(jettonWalletAddress || "");
 
   useEffect(() => {
-    if (!loadingBalance && !loadingHistory && !loadingWallet) {
+    if (!loadingBalance || !loadingHistory || !loadingWallet) {
       setIsLoading(false);
+    } else {
+      setIsLoading(true);
     }
   }, [loadingBalance, loadingHistory, loadingWallet]);
-
-
 
   useEffect(() => {
     if (!loadingHistory && !loadingBalance) {
@@ -69,13 +69,13 @@ export default function BalanceWallet() {
   }, [isTokenOwner]);
 
   useEffect(() => {
-    if (window ) {
+    if (window) {
       //@ts-ignore
       let tg = window.Telegram.WebApp;
-      if (!isTokenOwner && !isLoading && tg.initDataUnsafe ) {
-        setTimeout(()=>{
+      if (!isTokenOwner && !isLoading && tg.initDataUnsafe) {
+        setTimeout(() => {
           removeUser(tg.initDataUnsafe.user.id);
-        }, 100)
+        }, 100);
       }
     }
   }, []);
@@ -88,7 +88,7 @@ export default function BalanceWallet() {
   }
 
   return (
-    <Section header="Balance"> 
+    <Section header="Balance">
       {isTokenOwner ? (
         <>
           <Cell
