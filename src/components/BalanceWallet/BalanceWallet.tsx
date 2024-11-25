@@ -18,7 +18,7 @@ export default function BalanceWallet() {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
-  const [channelLink, setChannelLink] = useState(""); 
+  const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
@@ -32,29 +32,16 @@ export default function BalanceWallet() {
   const { jettonTransferHistory, loadingHistory, errorHistory } =
     useJettonTransferHistory(jettonWalletAddress || "");
 
-    useEffect(() => {
-      if (loadingBalance || loadingHistory) {
-        setIsLoading(true);
-      }
-      else{
-        setIsLoading(false);
-      }
-    }, [loadingBalance, loadingHistory, loadingWallet]);
-  
-
   useEffect(() => {
-    if (window ) {
-      //@ts-ignore
-      let tg = window.Telegram.WebApp;
-      if (!isTokenOwner && !isLoading && tg.initDataUnsafe ) {
-        setTimeout(()=>{
-          removeUser(tg.initDataUnsafe.user.id);
-        }, 100)
-      }
+    if (loadingBalance || loadingHistory) {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
     }
-  }, [isLoading, isTokenOwner]);
+  }, [loadingBalance, loadingHistory]);
 
   useEffect(() => {
+    let owner = false;
     if (!loadingHistory && !loadingBalance) {
       if (
         jettonBalance !== "0" &&
@@ -64,9 +51,19 @@ export default function BalanceWallet() {
         setIsTokenOwner(
           jettonBalance.length > 0 && jettonTransferHistory.length > 0
         );
+        owner = jettonBalance.length > 0 && jettonTransferHistory.length > 0
       }
     }
-  }, [jettonBalance, jettonTransferHistory]);
+    if (window) {
+      //@ts-ignore
+      let tg = window.Telegram.WebApp;
+      if (!owner && !isLoading && tg.initDataUnsafe) {
+        setTimeout(() => {
+          removeUser(tg.initDataUnsafe.user.id);
+        }, 100);
+      }
+    }
+  }, [isLoading, isTokenOwner, jettonBalance, jettonTransferHistory]);
 
   useEffect(() => {
     if (isTokenOwner) {
@@ -88,14 +85,38 @@ export default function BalanceWallet() {
         <Spinner size="l" />
       </div>
     );
-  }
-
-  return (
-    <Section header="Balance"> 
-      {isTokenOwner ? (
-        <>
+  } else {
+    return (
+      <Section header="Balance">
+        {isTokenOwner ? (
+          <>
+            <Cell
+              after={<Info type="text">Owner</Info>}
+              before={
+                <Avatar
+                  size={48}
+                  src="https://cache.tonapi.io/imgproxy/FEqFdmn6fBXy0TLzRr1mTQOqP4E3LqBBAO6pKENYur0/rs:fill:200:200:1/g:no/aHR0cHM6Ly9pLmliYi5jby9jTGNuVHd4L2ltYWdlLmpwZw.webp"
+                />
+              }
+            >
+              WOT Token
+              {jettonBalance && <Info type="text">{jettonBalance}</Info>}
+            </Cell>
+            <Cell>
+              <Button
+                Component="a"
+                href={channelLink}
+                mode="filled"
+                size="l"
+                target="_blank"
+              >
+                Private Telegram Channel
+              </Button>{" "}
+            </Cell>
+          </>
+        ) : (
           <Cell
-            after={<Info type="text">Owner</Info>}
+            after={<Info type="text">Not Owner</Info>}
             before={
               <Avatar
                 size={48}
@@ -104,50 +125,28 @@ export default function BalanceWallet() {
             }
           >
             WOT Token
-            {jettonBalance && <Info type="text">{jettonBalance}</Info>}
           </Cell>
-          <Cell>
-            <Button
-              Component="a"
-              href={channelLink}
-              mode="filled"
-              size="l"
-              target="_blank"
+        )}
+        {jettonTransferHistory &&
+          jettonTransferHistory.map((tx: any, index: number) => (
+            <Cell
+              key={index}
+              after={
+                <Info type="text">
+                  {new Date(tx.utime * 1000).toISOString()}
+                </Info>
+              }
+              before={
+                <Avatar
+                  size={48}
+                  src="https://cache.tonapi.io/imgproxy/FEqFdmn6fBXy0TLzRr1mTQOqP4E3LqBBAO6pKENYur0/rs:fill:200:200:1/g:no/aHR0cHM6Ly9pLmliYi5jby9jTGNuVHd4L2ltYWdlLmpwZw.webp"
+                />
+              }
             >
-              Private Telegram Channel
-            </Button>{" "}
-          </Cell>
-        </>
-      ) : (
-        <Cell
-          after={<Info type="text">Not Owner</Info>}
-          before={
-            <Avatar
-              size={48}
-              src="https://cache.tonapi.io/imgproxy/FEqFdmn6fBXy0TLzRr1mTQOqP4E3LqBBAO6pKENYur0/rs:fill:200:200:1/g:no/aHR0cHM6Ly9pLmliYi5jby9jTGNuVHd4L2ltYWdlLmpwZw.webp"
-            />
-          }
-        >
-          WOT Token
-        </Cell>
-      )}
-      {jettonTransferHistory &&
-        jettonTransferHistory.map((tx: any, index: number) => (
-          <Cell
-            key={index}
-            after={
-              <Info type="text">{new Date(tx.utime * 1000).toISOString()}</Info>
-            }
-            before={
-              <Avatar
-                size={48}
-                src="https://cache.tonapi.io/imgproxy/FEqFdmn6fBXy0TLzRr1mTQOqP4E3LqBBAO6pKENYur0/rs:fill:200:200:1/g:no/aHR0cHM6Ly9pLmliYi5jby9jTGNuVHd4L2ltYWdlLmpwZw.webp"
-              />
-            }
-          >
-            Transaction {index + 1}
-          </Cell>
-        ))}
-    </Section>
-  );
+              Transaction {index + 1}
+            </Cell>
+          ))}
+      </Section>
+    );
+  }
 }
