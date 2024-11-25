@@ -37,7 +37,7 @@ export default function BalanceWallet() {
         setIsLoading(true);
       }
       else{
-        setIsLoading(true);
+        setIsLoading(false);
       }
     }, [loadingBalance, loadingHistory, loadingWallet]);
   
