@@ -68,13 +68,6 @@ export default function BalanceWallet() {
     }
   }, [isTokenOwner]);
 
-  if (loadingBalance || loadingHistory || loadingWallet) {
-    return (
-      <div className="loaderContainer">
-        <Spinner size="l" />
-      </div>
-    );
-  }
   useEffect(() => {
     if (window ) {
       //@ts-ignore
@@ -86,6 +79,14 @@ export default function BalanceWallet() {
       }
     }
   }, []);
+  if (isLoading) {
+    return (
+      <div className="loaderContainer">
+        <Spinner size="l" />
+      </div>
+    );
+  }
+
   return (
     <Section header="Balance"> 
       {isTokenOwner ? (
