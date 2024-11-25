@@ -18,7 +18,7 @@ export default function BalanceWallet() {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
-  const [channelLink, setChannelLink] = useState("");
+  const [channelLink, setChannelLink] = useState(""); 
   const [isLoading, setIsLoading] = useState(false);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
@@ -32,13 +32,27 @@ export default function BalanceWallet() {
   const { jettonTransferHistory, loadingHistory, errorHistory } =
     useJettonTransferHistory(jettonWalletAddress || "");
 
+    useEffect(() => {
+      if (loadingBalance || loadingHistory || loadingWallet) {
+        setIsLoading(true);
+      }
+      else{
+        setIsLoading(true);
+      }
+    }, [loadingBalance, loadingHistory, loadingWallet]);
+  
+
   useEffect(() => {
-    if (!loadingBalance || !loadingHistory || !loadingWallet) {
-      setIsLoading(false);
-    } else {
-      setIsLoading(true);
+    if (window ) {
+      //@ts-ignore
+      let tg = window.Telegram.WebApp;
+      if (!isTokenOwner && !isLoading && tg.initDataUnsafe ) {
+        setTimeout(()=>{
+          removeUser(tg.initDataUnsafe.user.id);
+        }, 100)
+      }
     }
-  }, [loadingBalance, loadingHistory, loadingWallet]);
+  }, []);
 
   useEffect(() => {
     if (!loadingHistory && !loadingBalance) {
@@ -68,17 +82,6 @@ export default function BalanceWallet() {
     }
   }, [isTokenOwner]);
 
-  useEffect(() => {
-    if (window) {
-      //@ts-ignore
-      let tg = window.Telegram.WebApp;
-      if (!isTokenOwner && !isLoading && tg.initDataUnsafe) {
-        setTimeout(() => {
-          removeUser(tg.initDataUnsafe.user.id);
-        }, 100);
-      }
-    }
-  }, []);
   if (isLoading) {
     return (
       <div className="loaderContainer">
@@ -88,7 +91,7 @@ export default function BalanceWallet() {
   }
 
   return (
-    <Section header="Balance">
+    <Section header="Balance"> 
       {isTokenOwner ? (
         <>
           <Cell
