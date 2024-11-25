@@ -21,28 +21,79 @@ export default function BalanceWallet() {
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
+  const [jettonBalance, setJettonBalance] = useState<string | null>(null);
+  const [jettonTransferHistory, setJettonTransferHistory] = useState<any[] | null>(null);
+
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
+ 
 
-  const { jettonBalance, loadingBalance, errorBalance } = useJettonBalance(
-    jettonWalletAddress || "",
-    tonAddress || ""
-  );
-
-  const { jettonTransferHistory, loadingHistory, errorHistory } =
-    useJettonTransferHistory(jettonWalletAddress || "");
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const results = await Promise.all([ 
+            fetchBalance(),
+            fetchHistory(),
+          ]);
+    
+          // Распакуйте результаты
+          const [balanceResult, historyResult] = results;
+     
+          setJettonBalance(balanceResult);
+          setJettonTransferHistory(historyResult);
+          setIsLoading(false);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          setIsLoading(false);
+        }
+      };
+    
+      fetchData();
+    }, []);
+     
+    const fetchBalance = async () => {
+      const { jettonBalance, loadingBalance, errorBalance } = useJettonBalance(
+        jettonWalletAddress || "",
+        tonAddress || ""
+      );
+    
+        if(loadingBalance) {
+            await new Promise(resolve => setTimeout(resolve,100))
+        }
+    
+      if (errorBalance) {
+        throw new Error(`Error fetching balance: ${errorBalance}`);
+      }
+      return jettonBalance;
+    };
+    
+    const fetchHistory = async () => {
+      const { jettonTransferHistory, loadingHistory, errorHistory } = useJettonTransferHistory(jettonWalletAddress || "");
+    
+        if(loadingHistory) {
+            await new Promise(resolve => setTimeout(resolve,100))
+        }
+    
+      if (errorHistory) {
+        throw new Error(`Error fetching history: ${errorHistory}`);
+      }
+      return jettonTransferHistory;
+    };
 
   useEffect(() => {
-    if (loadingBalance || loadingHistory) {
-      setIsLoading(true);
-    } else {
-      setIsLoading(false);
+    if (window) {
+      //@ts-ignore
+      let tg = window.Telegram.WebApp;
+      if (!isTokenOwner && !isLoading && tg.initDataUnsafe) {
+        setTimeout(() => {
+          removeUser(tg.initDataUnsafe.user.id);
+        }, 100);
+      }
     }
-  }, [loadingBalance, loadingHistory]);
+  }, [isLoading, isTokenOwner]);
 
   useEffect(() => {
-    let owner = false;
-    if (!loadingHistory && !loadingBalance) {
+    if (!isLoading ) {
       if (
         jettonBalance !== "0" &&
         jettonBalance !== null &&
@@ -51,19 +102,9 @@ export default function BalanceWallet() {
         setIsTokenOwner(
           jettonBalance.length > 0 && jettonTransferHistory.length > 0
         );
-        owner = jettonBalance.length > 0 && jettonTransferHistory.length > 0
       }
     }
-    if (window) {
-      //@ts-ignore
-      let tg = window.Telegram.WebApp;
-      if (!owner && !isLoading && tg.initDataUnsafe) {
-        setTimeout(() => {
-          removeUser(tg.initDataUnsafe.user.id);
-        }, 100);
-      }
-    }
-  }, [isLoading, isTokenOwner, jettonBalance, jettonTransferHistory]);
+  }, [jettonBalance, jettonTransferHistory]);
 
   useEffect(() => {
     if (isTokenOwner) {
