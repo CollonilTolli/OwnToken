@@ -1,4 +1,3 @@
-
 "use client";
 import { useState, useEffect } from "react";
 import {
@@ -7,9 +6,9 @@ import {
   Info,
   Avatar,
   Button,
-  Spinner
+  Spinner,
 } from "@telegram-apps/telegram-ui";
-import { useTonAddress } from "@tonconnect/ui-react"; 
+import { useTonAddress } from "@tonconnect/ui-react";
 import { getInviteLink, removeUser } from "@/helpers";
 import useJettonMetadata from "@/hooks/useJettonMetadata";
 import useJettonBalance from "@/hooks/useJettonBalance";
@@ -18,19 +17,26 @@ import useJettonWalletAddress from "@/hooks/useJettonWalletAddress";
 
 export default function BalanceWallet() {
   const tonAddress = useTonAddress(false);
-  const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? '';
+  const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
-  const [channelLink, setChannelLink] = useState('');
+  const [channelLink, setChannelLink] = useState("");
 
-  const { jettonWalletAddress, loadingWallet, errorWallet } = useJettonWalletAddress(jettonMasterAddress, tonAddress);
+  const { jettonWalletAddress, loadingWallet, errorWallet } =
+    useJettonWalletAddress(jettonMasterAddress, tonAddress);
 
-  const { jettonBalance, isTokenOwnerFromBalance, loadingBalance, errorBalance } = useJettonBalance(jettonWalletAddress || "", tonAddress || "");
+  const {
+    jettonBalance,
+    isTokenOwnerFromBalance,
+    loadingBalance,
+    errorBalance,
+  } = useJettonBalance(jettonWalletAddress || "", tonAddress || "");
 
-  const { jettonTransferHistory, loadingHistory, errorHistory } = useJettonTransferHistory(jettonWalletAddress || "");
+  const { jettonTransferHistory, loadingHistory, errorHistory } =
+    useJettonTransferHistory(jettonWalletAddress || "");
 
-  console.log(jettonWalletAddress, 'jettonWalletAddress')
-  console.log(jettonBalance, 'jettonBalance')
-  console.log(jettonTransferHistory, 'jettonTransferHistory')
+  console.log(jettonWalletAddress, "jettonWalletAddress");
+  console.log(jettonBalance, "jettonBalance");
+  console.log(jettonTransferHistory, "jettonTransferHistory");
   useEffect(() => {
     if (window) {
       //@ts-ignore
@@ -40,13 +46,16 @@ export default function BalanceWallet() {
       }
     }
   }, [isTokenOwner]);
-  
-  useEffect(() => { 
-    if (isTokenOwnerFromBalance !== null && jettonTransferHistory !== null) {
-      setIsTokenOwner(isTokenOwnerFromBalance && jettonTransferHistory.length > 0);
+
+  useEffect(() => {
+    if (!loadingHistory && !loadingBalance) {
+      if (isTokenOwnerFromBalance !== null && jettonTransferHistory !== null) {
+        setIsTokenOwner(
+          isTokenOwnerFromBalance && jettonTransferHistory.length > 0
+        );
+      }
     }
   }, [isTokenOwnerFromBalance, jettonTransferHistory]);
-
 
   useEffect(() => {
     if (isTokenOwner) {
@@ -62,13 +71,15 @@ export default function BalanceWallet() {
     }
   }, [isTokenOwner]);
 
-  if (loadingBalance || loadingHistory || loadingWallet){
+  if (loadingBalance || loadingHistory || loadingWallet) {
     return (
-      <div><Spinner size="m" /></div>
-    )
+      <div>
+        <Spinner size="m" />
+      </div>
+    );
   }
 
-  return  (
+  return (
     <Section header="Balance">
       {jettonWalletAddress?.toString()}
       {jettonBalance?.toString()}
@@ -112,12 +123,6 @@ export default function BalanceWallet() {
           WOT Token
         </Cell>
       )}
-      {jettonWalletAddress && (
-        <Cell after={<Info type="text">{jettonWalletAddress}</Info>}>
-          Jetton Wallet Address
-        </Cell>
-      )}
-
       {jettonTransferHistory &&
         jettonTransferHistory.map((tx: any, index: number) => (
           <Cell
