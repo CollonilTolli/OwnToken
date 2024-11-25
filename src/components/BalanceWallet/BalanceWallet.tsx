@@ -40,10 +40,10 @@ export default function BalanceWallet() {
   }, [loadingBalance, loadingHistory, loadingWallet]);
 
   useEffect(() => {
-    if (window) {
+    if (window && !isLoading) {
       //@ts-ignore
       let tg = window.Telegram.WebApp;
-      if (!isTokenOwner && tg.initDataUnsafe && !isLoading) {
+      if (!isTokenOwner && tg.initDataUnsafe ) {
         removeUser(tg.initDataUnsafe.user.id);
       }
     }
