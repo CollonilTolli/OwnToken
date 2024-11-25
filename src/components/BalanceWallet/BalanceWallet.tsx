@@ -44,12 +44,12 @@ export default function BalanceWallet() {
       if (window) {
         //@ts-ignore
         let tg = window.Telegram.WebApp;
-        setTimeout(() => {
-          // Задержка 100 мс
+        // setTimeout(() => {
+        //   // Задержка 100 мс
           if (!isTokenOwner && tg.initDataUnsafe) {
             removeUser(tg.initDataUnsafe.user.id);
           }
-        }, 100);
+        // }, 100);
       }
     }
   }, [isLoading, isTokenOwner]);
