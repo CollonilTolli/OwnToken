@@ -37,14 +37,16 @@ export default function BalanceWallet() {
   console.log(jettonBalance, "jettonBalance");
   console.log(jettonTransferHistory, "jettonTransferHistory");
   useEffect(() => {
-    if (window) {
-      //@ts-ignore
-      let tg = window.Telegram.WebApp;
-      if (!isTokenOwner && tg.initDataUnsafe) {
-        removeUser(tg.initDataUnsafe.user.id);
+    if (!loadingBalance || !loadingHistory || !loadingWallet){
+      if (window) {
+        //@ts-ignore
+        let tg = window.Telegram.WebApp;
+        if (!isTokenOwner && tg.initDataUnsafe) {
+          removeUser(tg.initDataUnsafe.user.id);
+        }
       }
     }
-  }, [isTokenOwner]);
+  }, [isTokenOwner, loadingBalance, loadingHistory, loadingWallet]);
 
   useEffect(() => {
     if (!loadingHistory && !loadingBalance) {
