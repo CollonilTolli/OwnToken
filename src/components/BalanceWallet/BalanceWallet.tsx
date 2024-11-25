@@ -20,6 +20,7 @@ export default function BalanceWallet() {
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
   const [channelLink, setChannelLink] = useState("");
+  const [testString, setTestString] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
@@ -36,6 +37,10 @@ export default function BalanceWallet() {
   useEffect(() => {
     if (!loadingBalance && !loadingHistory) {
       setIsLoading(true);
+      setTestString('Загружено')
+    }
+    else{
+      setTestString('не Загружено')
     }
   }, [loadingBalance, loadingHistory, loadingWallet]);
 
@@ -87,6 +92,7 @@ export default function BalanceWallet() {
 
   return (
     <Section header="Balance">
+      <div>testString : {testString}</div>
       {isTokenOwner ? (
         <>
           <Cell
