@@ -21,7 +21,7 @@ export default function BalanceWallet() {
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
   const [channelLink, setChannelLink] = useState("");
   const [testString, setTestString] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
@@ -36,11 +36,11 @@ export default function BalanceWallet() {
 
   useEffect(() => {
     if (!loadingBalance && !loadingHistory) {
-      setIsLoading(true);
+      setIsLoading(false);
       setTestString('Загружено')
     }
     else{
-      setTestString('не Загружено')
+      setIsLoading(true);
     }
   }, [loadingBalance, loadingHistory, loadingWallet]);
 
