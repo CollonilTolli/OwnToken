@@ -70,6 +70,9 @@ export default function BalanceWallet() {
 
   return  (
     <Section header="Balance">
+      {jettonWalletAddress?.toString()}
+      {jettonBalance?.toString()}
+      {jettonTransferHistory?.toString()}
       {isTokenOwner ? (
         <>
           <Cell
