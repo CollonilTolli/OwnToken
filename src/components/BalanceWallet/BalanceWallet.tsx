@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Section,
   Cell,
@@ -38,7 +38,7 @@ export default function BalanceWallet() {
     }
   }, [loadingBalance, loadingHistory, loadingWallet]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (window && !isLoading) {
       //@ts-ignore
       let tg = window.Telegram.WebApp;
@@ -48,7 +48,7 @@ export default function BalanceWallet() {
         }, 100)
       }
     }
-  }, [isLoading, isTokenOwner]);
+  }, []);
 
   useEffect(() => {
     if (!loadingHistory && !loadingBalance) {
