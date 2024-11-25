@@ -49,9 +49,9 @@ export default function BalanceWallet() {
 
   useEffect(() => {
     if (!loadingHistory && !loadingBalance) {
-      if (jettonBalance !== null && jettonTransferHistory !== null) {
+      if (isTokenOwnerFromBalance !== null && jettonTransferHistory !== null) {
         setIsTokenOwner(
-          jettonBalance > 0 && jettonTransferHistory.length > 0
+          isTokenOwnerFromBalance && jettonTransferHistory.length > 0
         );
       }
     }
@@ -83,7 +83,7 @@ export default function BalanceWallet() {
     <Section header="Balance">
       <div> 1 {jettonWalletAddress?.toString()}</div>
       <div>2 {jettonBalance?.toString()}</div>
-      <div>3 {jettonTransferHistory?.join()}</div>
+      <div>3{ jettonTransferHistory && jettonTransferHistory.length}</div>
       {isTokenOwner ? (
         <>
           <Cell

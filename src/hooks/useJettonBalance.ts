@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import TonWeb from 'tonweb';
 
 const useJettonBalance = (walletAddress: string, tonAddress: string) => {
-  const [jettonBalance, setJettonBalance] = useState<number | null>(null);
+  const [jettonBalance, setJettonBalance] = useState<string | null>(null);
   const [isTokenOwnerFromBalance, setisTokenOwnerFromBalance] = useState<boolean | null>(null);
   const [loadingBalance, setLoadingBalance] = useState(false);
   const [errorBalance, setErrorBalance] = useState<string | null>(null);
@@ -23,7 +23,7 @@ const useJettonBalance = (walletAddress: string, tonAddress: string) => {
         );
         const data = await jettonWallet.getData();
 
-        setJettonBalance(data.balance.toNumber());
+        setJettonBalance(data.balance.toString());
         setisTokenOwnerFromBalance(data.ownerAddress.toString(true, true, true) === tonAddress);
       } catch (errorBalance: any) {
         setErrorBalance(errorBalance.message);
