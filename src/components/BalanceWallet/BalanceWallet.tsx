@@ -1,3 +1,4 @@
+
 "use client";
 import { useState, useEffect } from "react";
 import {
@@ -6,49 +7,44 @@ import {
   Info,
   Avatar,
   Button,
+  Spinner
 } from "@telegram-apps/telegram-ui";
-import { useTonAddress } from "@tonconnect/ui-react";
-import TonWeb from "tonweb";
+import { useTonAddress } from "@tonconnect/ui-react"; 
 import { getInviteLink, removeUser } from "@/helpers";
+import useJettonMetadata from "@/hooks/useJettonMetadata";
+import useJettonBalance from "@/hooks/useJettonBalance";
+import useJettonTransferHistory from "@/hooks/useJettonTransferHistory";
+import useJettonWalletAddress from "@/hooks/useJettonWalletAddress";
 
 export default function BalanceWallet() {
   const tonAddress = useTonAddress(false);
-  const [isTokenOwner, setIsTokenOwner] = useState(false);
-  const [jettonBalance, setJettonBalance] = useState<string | null>(null);
-  const [channelLink, setChannelLink] = useState("");
-  const [jettonWalletAddress, setJettonWalletAddress] = useState<string | null>(
-    null
-  );
-  const [userData, setUserData] = useState(null);
-  const [jettonTransferHistory, setJettonTransferHistory] = useState<
-    any[] | null
-  >(null);
-  const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
+  const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? '';
+  const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
+  const [channelLink, setChannelLink] = useState('');
+
+  const { jettonWalletAddress, loadingWallet, errorWallet } = useJettonWalletAddress(jettonMasterAddress, tonAddress);
+
+  const { jettonBalance, isTokenOwnerFromBalance, loadingBalance, errorBalance } = useJettonBalance(jettonWalletAddress || "", tonAddress || "");
+
+  const { jettonTransferHistory, loadingHistory, errorHistory } = useJettonTransferHistory(jettonWalletAddress || "");
+
 
   useEffect(() => {
     if (window) {
       //@ts-ignore
       let tg = window.Telegram.WebApp;
-      if (!isTokenOwner) {
+      if (!isTokenOwner && tg.initDataUnsafe) {
         removeUser(tg.initDataUnsafe.user.id);
-        return;
       }
     }
   }, [isTokenOwner]);
-
-  useEffect(() => {
-    if (tonAddress && jettonMasterAddress) {
-      fetchJettonMetadata(jettonMasterAddress);
-      fetchJettonWalletAddress(jettonMasterAddress, tonAddress);
+  
+  useEffect(() => { 
+    if (isTokenOwnerFromBalance !== null && jettonTransferHistory !== null) {
+      setIsTokenOwner(isTokenOwnerFromBalance && jettonTransferHistory.length > 0);
     }
-  }, [tonAddress, jettonMasterAddress]);
+  }, [isTokenOwnerFromBalance, jettonTransferHistory]);
 
-  useEffect(() => {
-    if (jettonWalletAddress) {
-      fetchJettonBalance(jettonWalletAddress);
-      fetchJettonTransferHistory(jettonWalletAddress);
-    }
-  }, [jettonWalletAddress]);
 
   useEffect(() => {
     if (isTokenOwner) {
@@ -64,128 +60,14 @@ export default function BalanceWallet() {
     }
   }, [isTokenOwner]);
 
-  const fetchJettonMetadata = async (jettonMasterAddress: string) => {
-    try {
-      const tonweb = new TonWeb(
-        new TonWeb.HttpProvider(
-          "https://ton-mainnet.core.chainstack.com/7d3fbedb3a3fe58eee4db369bec8cfec/api/v2/jsonRPC"
-        )
-      );
-      const jettonMinter = new TonWeb.token.jetton.JettonMinter(
-        tonweb.provider,
-        {
-          address: new TonWeb.utils.Address(jettonMasterAddress),
-          adminAddress: new TonWeb.utils.Address(jettonMasterAddress),
-          jettonContentUri: "",
-          jettonWalletCodeHex: "",
-        }
-      );
-      const data = await jettonMinter.getJettonData();
-    } catch (error) {
-      console.error("Error fetching jetton metadata:", error);
-    }
-  };
-
-  const fetchJettonWalletAddress = async (
-    jettonMasterAddress: string,
-    ownerWalletAddress: string
-  ) => {
-    try {
-      const tonweb = new TonWeb(
-        new TonWeb.HttpProvider(
-          "https://ton-mainnet.core.chainstack.com/7d3fbedb3a3fe58eee4db369bec8cfec/api/v2/jsonRPC"
-        )
-      );
-      const jettonMinter = new TonWeb.token.jetton.JettonMinter(
-        tonweb.provider,
-        {
-          address: new TonWeb.utils.Address(jettonMasterAddress),
-          adminAddress: new TonWeb.utils.Address(jettonMasterAddress), // Для примера, используем тот же адрес
-          jettonContentUri: "", // Пустой URI для примера
-          jettonWalletCodeHex: "", // Пустой код для примера
-        }
-      );
-
-      const jettonWalletAddress = await jettonMinter.getJettonWalletAddress(
-        new TonWeb.utils.Address(ownerWalletAddress)
-      );
-
-      const jettonWallet = new TonWeb.token.jetton.JettonWallet(
-        tonweb.provider,
-        {
-          address: jettonWalletAddress,
-        }
-      );
-
-      const jettonData = await jettonWallet.getData();
-
-      // Verify that the Jetton Minter address matches
-      if (
-        jettonData.jettonMinterAddress.toString(false) !==
-        jettonMinter.address?.toString(false)
-      ) {
-        throw Error(
-          "Jetton minter address from jetton wallet does not match the expected minter address"
-        );
-      }
-
-      setJettonWalletAddress(jettonWalletAddress.toString(true, true, true));
-    } catch (error) {
-      console.error("Error fetching jetton wallet address:", error);
-    }
-  };
-
-  const fetchJettonBalance = async (walletAddress: string) => {
-    try {
-      const tonweb = new TonWeb(
-        new TonWeb.HttpProvider(
-          "https://ton-mainnet.core.chainstack.com/7d3fbedb3a3fe58eee4db369bec8cfec/api/v2/jsonRPC"
-        )
-      );
-      const jettonWallet = new TonWeb.token.jetton.JettonWallet(
-        tonweb.provider,
-        { address: new TonWeb.utils.Address(walletAddress) }
-      );
-      const data = await jettonWallet.getData();
-
-      setJettonBalance(data.balance.toString());
-      setIsTokenOwner(
-        data.ownerAddress.toString(true, true, true) === tonAddress
-      );
-    } catch (error) {
-      console.error("Error fetching jetton balance:", error);
-    }
-  };
-
-  const fetchJettonTransferHistory = async (jettonWalletAddress: string) => {
-    try {
-      const tonweb = new TonWeb(
-        new TonWeb.HttpProvider(
-          "https://ton-mainnet.core.chainstack.com/7d3fbedb3a3fe58eee4db369bec8cfec/api/v2/jsonRPC"
-        )
-      );
-      const limit = 10;
-      const transactions = await tonweb.provider.getTransactions(
-        jettonWalletAddress,
-        limit
-      );
-
-      setJettonTransferHistory(transactions);
-    } catch (error) {
-      console.error("Error fetching jetton transfer history:", error);
-    }
-  };
-
-  return (
+  if (loadingBalance || loadingHistory || loadingWallet){
+    return (
+      <div><Spinner size="m" /></div>
+    )
+  }
+  
+  return  (
     <Section header="Balance">
-    {/* <Button
-        Component="button"
-        onClick={() => setIsTokenOwner(!isTokenOwner)}
-        mode="bezeled"
-        size="m"
-      >
-        Owner?
-      </Button> */}
       {isTokenOwner ? (
         <>
           <Cell
@@ -208,7 +90,7 @@ export default function BalanceWallet() {
               size="l"
               target="_blank"
             >
-              Private Telegram Сhannel
+              Private Telegram Chammel
             </Button>{" "}
           </Cell>
         </>

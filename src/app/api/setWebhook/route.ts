@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import axios from 'axios'; 
+import axios from 'axios';
 
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${process.env.BOT_TOKEN}`;
-const WEBHOOK_URL = `https://${process.env.APP_LINK}/api/webhook`;
-
+const WEBHOOK_URL = `${process.env.APP_LINK}/api/webhook`;
 
 export async function GET() {
   try {
