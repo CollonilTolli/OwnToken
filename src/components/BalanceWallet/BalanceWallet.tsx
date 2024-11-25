@@ -52,7 +52,7 @@ export default function BalanceWallet() {
         }, 100)
       }
     }
-  }, []);
+  }, [isLoading, isTokenOwner]);
 
   useEffect(() => {
     if (!loadingHistory && !loadingBalance) {
