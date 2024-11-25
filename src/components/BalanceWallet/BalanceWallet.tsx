@@ -33,7 +33,7 @@ export default function BalanceWallet() {
     useJettonTransferHistory(jettonWalletAddress || "");
 
     useEffect(() => {
-      if (loadingBalance || loadingHistory || loadingWallet) {
+      if (loadingBalance || loadingHistory) {
         setIsLoading(true);
       }
       else{
