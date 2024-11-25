@@ -28,7 +28,9 @@ export default function BalanceWallet() {
 
   const { jettonTransferHistory, loadingHistory, errorHistory } = useJettonTransferHistory(jettonWalletAddress || "");
 
-
+  console.log(jettonWalletAddress, 'jettonWalletAddress')
+  console.log(jettonBalance, 'jettonBalance')
+  console.log(jettonTransferHistory, 'jettonTransferHistory')
   useEffect(() => {
     if (window) {
       //@ts-ignore
@@ -65,7 +67,7 @@ export default function BalanceWallet() {
       <div><Spinner size="m" /></div>
     )
   }
-  
+
   return  (
     <Section header="Balance">
       {isTokenOwner ? (
