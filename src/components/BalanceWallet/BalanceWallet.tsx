@@ -20,37 +20,47 @@ export default function BalanceWallet() {
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
   const [channelLink, setChannelLink] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
 
-  const {
-    jettonBalance,
-    loadingBalance,
-    errorBalance,
-  } = useJettonBalance(jettonWalletAddress || "", tonAddress || "");
+  const { jettonBalance, loadingBalance, errorBalance } = useJettonBalance(
+    jettonWalletAddress || "",
+    tonAddress || ""
+  );
 
   const { jettonTransferHistory, loadingHistory, errorHistory } =
     useJettonTransferHistory(jettonWalletAddress || "");
 
-  console.log(jettonWalletAddress, "jettonWalletAddress");
-  console.log(jettonBalance, "jettonBalance");
-  console.log(jettonTransferHistory, "jettonTransferHistory");
+  useEffect(() => {
+    if (!loadingBalance && !loadingHistory && !loadingWallet) {
+      setIsLoading(true);
+    }
+  }, [loadingBalance, loadingHistory, loadingWallet]);
 
-useEffect(() => {
-  if (!loadingBalance && !loadingHistory && !loadingWallet) { 
-    if (window) {
-      //@ts-ignore
-      let tg = window.Telegram.WebApp;
-      if (!isTokenOwner && tg.initDataUnsafe) {
-        removeUser(tg.initDataUnsafe.user.id);
+  useEffect(() => {
+    if (!isLoading) {
+      if (window) {
+        //@ts-ignore
+        let tg = window.Telegram.WebApp;
+        setTimeout(() => {
+          // Задержка 100 мс
+          if (!isTokenOwner && tg.initDataUnsafe) {
+            removeUser(tg.initDataUnsafe.user.id);
+          }
+        }, 100);
       }
     }
-  }
-}, [isTokenOwner, loadingBalance, loadingHistory, loadingWallet]);
+  }, [isLoading, isTokenOwner]);
+
   useEffect(() => {
     if (!loadingHistory && !loadingBalance) {
-      if (jettonBalance !== '0' && jettonBalance !== null && jettonTransferHistory !== null) {
+      if (
+        jettonBalance !== "0" &&
+        jettonBalance !== null &&
+        jettonTransferHistory !== null
+      ) {
         setIsTokenOwner(
           jettonBalance.length > 0 && jettonTransferHistory.length > 0
         );
