@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import {
   Section,
   Cell,
@@ -10,7 +10,6 @@ import {
 } from "@telegram-apps/telegram-ui";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { getInviteLink, removeUser } from "@/helpers";
-import useJettonMetadata from "@/hooks/useJettonMetadata";
 import useJettonBalance from "@/hooks/useJettonBalance";
 import useJettonTransferHistory from "@/hooks/useJettonTransferHistory";
 import useJettonWalletAddress from "@/hooks/useJettonWalletAddress";
@@ -39,7 +38,7 @@ export default function BalanceWallet() {
     }
   }, [loadingBalance, loadingHistory, loadingWallet]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (window && !isLoading) {
       //@ts-ignore
       let tg = window.Telegram.WebApp;
