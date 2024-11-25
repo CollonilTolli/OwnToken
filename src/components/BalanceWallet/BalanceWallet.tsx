@@ -21,64 +21,23 @@ export default function BalanceWallet() {
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  const [jettonBalance, setJettonBalance] = useState<string | null>(null);
-  const [jettonTransferHistory, setJettonTransferHistory] = useState<any[] | null>(null);
-
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
- 
 
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const results = await Promise.all([ 
-            fetchBalance(),
-            fetchHistory(),
-          ]);
-    
-          // Распакуйте результаты
-          const [balanceResult, historyResult] = results;
-     
-          setJettonBalance(balanceResult);
-          setJettonTransferHistory(historyResult);
-          setIsLoading(false);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          setIsLoading(false);
-        }
-      };
-    
-      fetchData();
-    }, []);
-     
-    const fetchBalance = async () => {
-      const { jettonBalance, loadingBalance, errorBalance } = useJettonBalance(
-        jettonWalletAddress || "",
-        tonAddress || ""
-      );
-    
-        if(loadingBalance) {
-            await new Promise(resolve => setTimeout(resolve,100))
-        }
-    
-      if (errorBalance) {
-        throw new Error(`Error fetching balance: ${errorBalance}`);
-      }
-      return jettonBalance;
-    };
-    
-    const fetchHistory = async () => {
-      const { jettonTransferHistory, loadingHistory, errorHistory } = useJettonTransferHistory(jettonWalletAddress || "");
-    
-        if(loadingHistory) {
-            await new Promise(resolve => setTimeout(resolve,100))
-        }
-    
-      if (errorHistory) {
-        throw new Error(`Error fetching history: ${errorHistory}`);
-      }
-      return jettonTransferHistory;
-    };
+  const { jettonBalance, loadingBalance, errorBalance } = useJettonBalance(
+    jettonWalletAddress || "",
+    tonAddress || ""
+  );
+  const { jettonTransferHistory, loadingHistory, errorHistory } =
+    useJettonTransferHistory(jettonWalletAddress || "");
+
+  useEffect(() => {
+    if (loadingBalance || loadingHistory) {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+    }
+  }, [loadingBalance, loadingHistory]);
 
   useEffect(() => {
     if (window) {
@@ -93,7 +52,7 @@ export default function BalanceWallet() {
   }, [isLoading, isTokenOwner]);
 
   useEffect(() => {
-    if (!isLoading ) {
+    if (!loadingHistory && !loadingBalance) {
       if (
         jettonBalance !== "0" &&
         jettonBalance !== null &&
