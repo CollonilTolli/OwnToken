@@ -19,8 +19,7 @@ export default function BalanceWallet() {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
-  const [channelLink, setChannelLink] = useState("");
-  const [testString, setTestString] = useState("");
+  const [channelLink, setChannelLink] = useState(""); 
   const [isLoading, setIsLoading] = useState(false);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
@@ -37,10 +36,6 @@ export default function BalanceWallet() {
   useEffect(() => {
     if (!loadingBalance && !loadingHistory) {
       setIsLoading(false);
-      setTestString('Загружено')
-    }
-    else{
-      setIsLoading(true);
     }
   }, [loadingBalance, loadingHistory, loadingWallet]);
 
@@ -49,7 +44,9 @@ export default function BalanceWallet() {
       //@ts-ignore
       let tg = window.Telegram.WebApp;
       if (!isTokenOwner && tg.initDataUnsafe ) {
-        removeUser(tg.initDataUnsafe.user.id);
+        setTimeout(()=>{
+          removeUser(tg.initDataUnsafe.user.id);
+        }, 100)
       }
     }
   }, [isLoading, isTokenOwner]);
@@ -91,8 +88,7 @@ export default function BalanceWallet() {
   }
 
   return (
-    <Section header="Balance">
-      <div>testString : {testString}</div>
+    <Section header="Balance"> 
       {isTokenOwner ? (
         <>
           <Cell
