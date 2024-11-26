@@ -1,21 +1,19 @@
-export function useDebounce<T extends (...args: any[]) => any, R extends ReturnType<T>>(
+export function useDebounce<T extends (...args: any[]) => Promise<any>>(
   callback: T,
   delay: number
-): (...args: Parameters<T>) => Promise<R> {
-  let timeoutId: NodeJS.Timeout | null | any = null;
+): (...args: Parameters<T>) => Promise<ReturnType<T>> {
+  let timeoutId: NodeJS.Timeout | null | any= null;
 
-  return async (...args: Parameters<T>): Promise<R> => {
+  return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      try{ 
-        callback(...args);
-      }catch(error){
+    timeoutId = setTimeout(async () => {
+      try {
+        await callback(...args);  
+      } catch (error) {
         console.error("Error in debounced callback:", error);
       }
-
     }, delay);
-    return (await callback(...args)) as R; //Explicit cast
+    return callback(...args);  
   };
 }
-
 
