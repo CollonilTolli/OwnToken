@@ -15,12 +15,12 @@ import useJettonTransferHistory from "@/hooks/useJettonTransferHistory";
 import useJettonWalletAddress from "@/hooks/useJettonWalletAddress";
 import { useDebounce } from "@/hooks/useDebounce";
 
- const BalanceWallet = memo(()=> {
+const BalanceWallet = memo(() => {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
-  const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
+  const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false); // remains false until data is ready
   const [channelLink, setChannelLink] = useState("");
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoading, setIsLoading] = useState(true);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
@@ -32,48 +32,53 @@ import { useDebounce } from "@/hooks/useDebounce";
   const { jettonTransferHistory, loadingHistory, errorHistory } =
     useJettonTransferHistory(jettonWalletAddress || "");
 
- 
   useEffect(() => {
-    setIsLoading(false);
-    const isLoadingCurrent = loadingHistory || loadingBalance;
-    setIsLoading(isLoadingCurrent);
-  }, [loadingBalance, loadingHistory]);
+    setIsLoading(loadingWallet || loadingBalance || loadingHistory); // combined loading state
+  }, [loadingWallet, loadingBalance, loadingHistory]);
+
   useEffect(() => {
-    if (!loadingBalance && !loadingHistory && !loadingWallet) {
-      if ( 
-        jettonBalance !== null &&
-        jettonTransferHistory !== null
-      ) {
+    if (!loadingWallet && !loadingBalance && !loadingHistory) {
+      // Check all loading states
+      if (jettonBalance !== null && jettonTransferHistory !== null) {
         setIsTokenOwner(
-          jettonBalance.length > 0 && jettonBalance !== "0" && jettonTransferHistory.length > 0
-        ); 
-      }  
+          jettonBalance.length > 0 &&
+            jettonBalance !== "0" &&
+            jettonTransferHistory.length > 0
+        );
+      }
     }
-  }, [jettonBalance, jettonTransferHistory, loadingBalance, loadingHistory]);
+  }, [
+    jettonBalance,
+    jettonTransferHistory,
+    loadingWallet,
+    loadingBalance,
+    loadingHistory,
+  ]);
 
   const debouncedRemoveUser = useDebounce(removeUser, 100);
 
   useEffect(() => {
-    const handleRemoveUser = async () => { 
+    const handleRemoveUser = async () => {
       if (window && !isLoading && !isTokenOwner) {
+        // Check isLoading here
         //@ts-ignore
         const tg = window.Telegram.WebApp;
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
-            const [success] = await Promise.all([
-              debouncedRemoveUser(tg.initDataUnsafe.user.id), 
-            ]);
-            if (success ){
-              console.log('Пользователь удалён')
-            }
+        if (
+          tg.initDataUnsafe &&
+          tg.initDataUnsafe.user &&
+          tg.initDataUnsafe.user.id
+        ) {
+          const [success] = await Promise.all([
+            debouncedRemoveUser(tg.initDataUnsafe.user.id),
+          ]);
+          if (success) {
+            console.log("Пользователь удалён");
+          }
         }
-      } 
+      }
     };
-   
-    if (!isLoading) {
-      handleRemoveUser();
-    }
-   
-  }, [isLoading, isTokenOwner, removeUser]);
+    handleRemoveUser(); // Call immediately if the conditions are met.
+  }, [isLoading, isTokenOwner, removeUser]); // removeUser dependency added
 
   useEffect(() => {
     if (isTokenOwner) {
@@ -111,7 +116,8 @@ import { useDebounce } from "@/hooks/useDebounce";
             >
               WOT Token
               {jettonBalance && <Info type="text">{jettonBalance}</Info>}
-            </Cell> <Cell>
+            </Cell>{" "}
+            <Cell>
               <Button
                 Component="a"
                 href={channelLink}
@@ -158,5 +164,5 @@ import { useDebounce } from "@/hooks/useDebounce";
       </Section>
     );
   }
-})
-export default BalanceWallet
+});
+export default BalanceWallet;
