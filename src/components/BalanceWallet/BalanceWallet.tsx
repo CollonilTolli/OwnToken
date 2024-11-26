@@ -18,7 +18,7 @@ import { useDebounce } from "@/hooks/useDebounce";
  const BalanceWallet = memo(()=> {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
-  const [isTokenOwner, setIsTokenOwner] = useState<boolean>(true);
+  const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingRemoveUser, setIsLoadingRemoveUser] = useState(false);
