@@ -33,8 +33,10 @@ import { useDebounce } from "@/hooks/useDebounce";
     useJettonTransferHistory(jettonWalletAddress || "");
 
   useEffect(() => {
-    setIsLoading(loadingBalance || loadingHistory);
-  }, [loadingBalance, loadingHistory]);
+    setTimeout(()=> {
+      setIsLoading(false);
+    }, 1500)
+  }, []);
 
   useEffect(() => {
     if (!loadingBalance && !loadingHistory && !loadingWallet) {
