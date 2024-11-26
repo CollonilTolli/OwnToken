@@ -37,7 +37,7 @@ export default function BalanceWallet() {
   }, [loadingBalance, loadingHistory]);
 
   useEffect(() => {
-    if (!loadingBalance && !loadingHistory && !loadingWallet) {
+    if (!isLoading) {
       if (
         jettonBalance !== "0" &&
         jettonBalance !== null &&
