@@ -56,27 +56,21 @@ const BalanceWallet = () => {
   }, [jettonMasterAddress, tonAddress, jettonWalletAddress]);
 
   useEffect(() => {
-    if (dataLoaded) {
-      if (jettonBalance !== null && jettonTransferHistory !== null) {
-        setIsTokenOwner(
-          jettonBalance.length > 0 &&
-            jettonBalance !== "0" &&
-            jettonTransferHistory.length > 0
-        );
-      }
-    }
-  }, [dataLoaded, jettonBalance, jettonTransferHistory]);
-
-  useEffect(() => {
     if (dataLoaded && !isTokenOwner) {
-      if (window && !dataLoaded && !isTokenOwner) {
+      if (window) {
         //@ts-ignore
         const tg = window.Telegram.WebApp;
         debouncedRemoveUser(tg.initDataUnsafe.user.id);
       }
     }
   }, [dataLoaded, isTokenOwner]);
- 
+
+  useEffect(() => {
+    if (dataLoaded) {
+      setIsTokenOwner(jettonBalance !== null && parseFloat(jettonBalance) > 0);
+    }
+  }, [dataLoaded, jettonBalance]);
+
   useEffect(() => {
     if (isTokenOwner) {
       const getLink = async () => {
