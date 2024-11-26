@@ -22,6 +22,7 @@ const BalanceWallet = () => {
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [ownerCheckCompleted, setOwnerCheckCompleted] = useState(false);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
@@ -38,6 +39,7 @@ const BalanceWallet = () => {
   }, [loadingWallet, loadingBalance, loadingHistory]);
 
   const debouncedRemoveUser = useDebounce(removeUser, 100);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -63,20 +65,21 @@ const BalanceWallet = () => {
             jettonBalance !== "0" &&
             jettonTransferHistory.length > 0
         );
+        setOwnerCheckCompleted(true);
       }
     }
   }, [dataLoaded, jettonBalance, jettonTransferHistory]);
 
   useEffect(() => {
-    if (dataLoaded && !isTokenOwner) {
-      if (window && dataLoaded && !isTokenOwner) {
+    if (ownerCheckCompleted && !isTokenOwner) {
+      if (window && ownerCheckCompleted && !isTokenOwner) {
         //@ts-ignore
         const tg = window.Telegram.WebApp;
         debouncedRemoveUser(tg.initDataUnsafe.user.id);
       }
     }
-  }, [dataLoaded, isTokenOwner]);
- 
+  }, [ownerCheckCompleted, isTokenOwner]);
+
   useEffect(() => {
     if (isTokenOwner) {
       const getLink = async () => {
