@@ -57,8 +57,9 @@ const BalanceWallet = () => {
   }, [jettonMasterAddress, tonAddress, jettonWalletAddress]);
 
   useEffect(() => {
-    if (dataLoaded && jettonBalance !== null && jettonTransferHistory !== null) {
+    if (dataLoaded) {
       const isOwner =
+        jettonBalance !== null &&
         jettonBalance.length > 0 &&
         jettonBalance !== "0" &&
         jettonTransferHistory.length > 0;
