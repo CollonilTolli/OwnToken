@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useLayoutEffect, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import {
   Section,
   Cell,
@@ -22,7 +22,6 @@ const BalanceWallet = () => {
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
-  const [ownerCheckCompleted, setOwnerCheckCompleted] = useState(false);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
@@ -58,27 +57,22 @@ const BalanceWallet = () => {
   }, [jettonMasterAddress, tonAddress, jettonWalletAddress]);
 
   useEffect(() => {
-    if (dataLoaded) {
-      if (jettonBalance !== null && jettonTransferHistory !== null) {
-        setIsTokenOwner(
-          jettonBalance.length > 0 &&
-            jettonBalance !== "0" &&
-            jettonTransferHistory.length > 0
-        );
-        setOwnerCheckCompleted(true);
-      }
-    }
-  }, [dataLoaded, jettonBalance, jettonTransferHistory]);
+    if (dataLoaded && jettonBalance !== null && jettonTransferHistory !== null) {
+      const isOwner =
+        jettonBalance.length > 0 &&
+        jettonBalance !== "0" &&
+        jettonTransferHistory.length > 0;
+      setIsTokenOwner(isOwner);
 
-  useEffect(() => {
-    if (ownerCheckCompleted && !isTokenOwner) {
-      if (window && ownerCheckCompleted && !isTokenOwner) {
-        //@ts-ignore
-        const tg = window.Telegram.WebApp;
-        debouncedRemoveUser(tg.initDataUnsafe.user.id);
+      if (!isOwner) {
+        if (window) {
+          //@ts-ignore
+          const tg = window.Telegram.WebApp;
+          debouncedRemoveUser(tg.initDataUnsafe.user.id);
+        }
       }
     }
-  }, [ownerCheckCompleted, isTokenOwner]);
+  }, [dataLoaded, jettonBalance, jettonTransferHistory, debouncedRemoveUser]);
 
   useEffect(() => {
     if (isTokenOwner) {
