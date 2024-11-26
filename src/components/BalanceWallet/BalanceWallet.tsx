@@ -46,7 +46,7 @@ export default function BalanceWallet() {
         setIsTokenOwner(
           jettonBalance.length > 0 && jettonTransferHistory.length > 0
         );
-      } else {
+      } else if(jettonBalance === "0" || jettonTransferHistory.length === 0 ) {
         setIsTokenOwner(false);
       }
     }
