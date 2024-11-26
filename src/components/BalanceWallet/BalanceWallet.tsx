@@ -69,17 +69,14 @@ const BalanceWallet = () => {
 
   useEffect(() => {
     if (dataLoaded && !isTokenOwner) {
-      handleRemoveUser();
+      if (window && !dataLoaded && !isTokenOwner) {
+        //@ts-ignore
+        const tg = window.Telegram.WebApp;
+        debouncedRemoveUser(tg.initDataUnsafe.user.id);
+      }
     }
   }, [dataLoaded, isTokenOwner]);
-
-  const handleRemoveUser = async () => {
-    if (window && !dataLoaded && !isTokenOwner) {
-      //@ts-ignore
-      const tg = window.Telegram.WebApp;
-      debouncedRemoveUser(tg.initDataUnsafe.user.id);
-    }
-  };
+ 
   useEffect(() => {
     if (isTokenOwner) {
       const getLink = async () => {
