@@ -38,25 +38,45 @@ const BalanceWallet = () => {
   }, [loadingWallet, loadingBalance, loadingHistory]);
 
   const debouncedRemoveUser = useDebounce(removeUser, 100);
-  const [ownershipChecked, setOwnershipChecked] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          useJettonWalletAddress(jettonMasterAddress, tonAddress),
+          useJettonBalance(jettonWalletAddress || "", tonAddress || ""),
+          useJettonTransferHistory(jettonWalletAddress || ""),
+        ]);
+        setDataLoaded(true);
+      } catch (error) {
+        console.error("Ошибка при загрузке данных:", error);
+        setDataLoaded(true);
+      }
+    };
+    fetchData();
+  }, [jettonMasterAddress, tonAddress, jettonWalletAddress]);
 
   useEffect(() => {
-    if (isLoading) return;  // Ничего не делаем, пока идет загрузка
-  
-    if (!ownershipChecked) { 
-      setIsTokenOwner(jettonBalance !== "0" && jettonTransferHistory.length > 0);
-      setOwnershipChecked(true);
+    if (dataLoaded) {
+      if (jettonBalance !== null && jettonTransferHistory !== null) {
+        setIsTokenOwner(
+          jettonBalance.length > 0 &&
+            jettonBalance !== "0" &&
+            jettonTransferHistory.length > 0
+        );
+      }
     }
-  
-    if (ownershipChecked && !isTokenOwner && window) {
-      //@ts-ignore
-      const tg = window.Telegram.WebApp;
-      debouncedRemoveUser(tg.initDataUnsafe.user.id);
-    }
-  }, [isLoading, jettonBalance, ownershipChecked, isTokenOwner]);
-  
- 
+  }, [dataLoaded, jettonBalance, jettonTransferHistory]);
 
+  useEffect(() => {
+    if (dataLoaded && !isTokenOwner) {
+      if (window && dataLoaded && !isTokenOwner) {
+        //@ts-ignore
+        const tg = window.Telegram.WebApp;
+        debouncedRemoveUser(tg.initDataUnsafe.user.id);
+      }
+    }
+  }, [dataLoaded, isTokenOwner]);
+ 
   useEffect(() => {
     if (isTokenOwner) {
       const getLink = async () => {
