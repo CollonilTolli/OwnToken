@@ -46,13 +46,11 @@ export default function BalanceWallet() {
         setIsTokenOwner(
           jettonBalance.length > 0 && jettonTransferHistory.length > 0
         );
-      } else if(jettonBalance === "0" || jettonTransferHistory.length === 0 ) {
-        setIsTokenOwner(false);
       }
     }
   }, [jettonBalance, jettonTransferHistory, loadingBalance, loadingHistory]);
 
-  const debouncedRemoveUser = useDebounce(removeUser, 10000);
+  const debouncedRemoveUser = useDebounce(removeUser, 100);
 
   useLayoutEffect(() => {
     if (window && !isLoading) {
