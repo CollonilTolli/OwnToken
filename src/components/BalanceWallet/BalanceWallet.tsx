@@ -65,6 +65,7 @@ const BalanceWallet = () => {
         jettonTransferHistory.length > 0;
       setIsTokenOwner(isOwner);
       setOwnerCheckCompleted(true);
+      console.log("Owner check completed:", isOwner); // Debug log
     }
   }, [dataLoaded, jettonBalance, jettonTransferHistory]);
 
@@ -73,6 +74,7 @@ const BalanceWallet = () => {
       if (window) {
         //@ts-ignore
         const tg = window.Telegram.WebApp;
+        console.log("Removing user:", tg.initDataUnsafe.user.id); // Debug log
         debouncedRemoveUser(tg.initDataUnsafe.user.id);
       }
     }
