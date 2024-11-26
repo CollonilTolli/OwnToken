@@ -40,8 +40,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 
   useEffect(() => {
     if (!loadingBalance && !loadingHistory && !loadingWallet) {
-      if (
-        jettonBalance !== "0" &&
+      if ( 
         jettonBalance !== null &&
         jettonTransferHistory !== null
       ) {
@@ -49,9 +48,7 @@ import { useDebounce } from "@/hooks/useDebounce";
           jettonBalance.length > 0 && jettonTransferHistory.length > 0
         );
         setIsButton(jettonBalance.length > 0 && jettonTransferHistory.length > 0)
-      } else {
-        setIsTokenOwner(false);
-      }
+      }  
     }
   }, [jettonBalance, jettonTransferHistory, loadingBalance, loadingHistory]);
 
