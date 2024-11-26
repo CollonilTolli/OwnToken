@@ -22,6 +22,7 @@ const BalanceWallet = () => {
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [ownerCheckCompleted, setOwnerCheckCompleted] = useState(false);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
@@ -63,18 +64,19 @@ const BalanceWallet = () => {
         jettonBalance !== "0" &&
         jettonTransferHistory.length > 0;
       setIsTokenOwner(isOwner);
+      setOwnerCheckCompleted(true);
     }
   }, [dataLoaded, jettonBalance, jettonTransferHistory]);
 
   useEffect(() => {
-    if (dataLoaded && !isTokenOwner) {
+    if (ownerCheckCompleted && !isTokenOwner) {
       if (window) {
         //@ts-ignore
         const tg = window.Telegram.WebApp;
         debouncedRemoveUser(tg.initDataUnsafe.user.id);
       }
     }
-  }, [dataLoaded, isTokenOwner, debouncedRemoveUser]);
+  }, [ownerCheckCompleted, isTokenOwner, debouncedRemoveUser]);
 
   useEffect(() => {
     if (isTokenOwner) {
