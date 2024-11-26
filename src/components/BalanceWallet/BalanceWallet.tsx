@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect, memo } from "react";
 import {
   Section,
   Cell,
@@ -15,7 +15,7 @@ import useJettonTransferHistory from "@/hooks/useJettonTransferHistory";
 import useJettonWalletAddress from "@/hooks/useJettonWalletAddress";
 import { useDebounce } from "@/hooks/useDebounce";
 
-export default function BalanceWallet() {
+ const BalanceWallet = memo(()=> {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
@@ -52,7 +52,7 @@ export default function BalanceWallet() {
     }
   }, [jettonBalance, jettonTransferHistory, loadingBalance, loadingHistory]);
 
-  const debouncedRemoveUser = useDebounce(removeUser, 10000);
+  const debouncedRemoveUser = useDebounce(removeUser, 100);
 
   useLayoutEffect(() => {
     if (window && !isLoading) {
@@ -148,4 +148,5 @@ export default function BalanceWallet() {
       </Section>
     );
   }
-}
+})
+export default BalanceWallet
