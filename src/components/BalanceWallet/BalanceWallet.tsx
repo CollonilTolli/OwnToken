@@ -48,7 +48,7 @@ import { useDebounce } from "@/hooks/useDebounce";
         setIsTokenOwner(
           jettonBalance.length > 0 && jettonTransferHistory.length > 0
         );
-        setIsButton(isTokenOwner)
+        setIsButton(jettonBalance.length > 0 && jettonTransferHistory.length > 0)
       } else {
         setIsTokenOwner(false);
       }
