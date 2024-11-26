@@ -39,21 +39,32 @@ const BalanceWallet = () => {
 
   const debouncedRemoveUser = useDebounce(removeUser, 100);
   useEffect(() => {
-    const fetchData = async () => {
+    const checkOwnership = async () => {
       try {
         await Promise.all([
           useJettonWalletAddress(jettonMasterAddress, tonAddress),
           useJettonBalance(jettonWalletAddress || "", tonAddress || ""),
           useJettonTransferHistory(jettonWalletAddress || ""),
         ]);
-        setDataLoaded(true);
+        const balanceNum = parseFloat(jettonBalance || "0");
+        setIsTokenOwner(!isNaN(balanceNum) && balanceNum > 0);
+  
+        if (!isTokenOwner) {
+          if (window) {
+            //@ts-ignore
+            const tg = window.Telegram.WebApp;
+            await debouncedRemoveUser(tg.initDataUnsafe.user.id); // Добавлен await
+          }
+        }
       } catch (error) {
-        console.error("Ошибка при загрузке данных:", error);
-        setDataLoaded(true);
+        console.error("Error checking ownership:", error); 
       }
     };
-    fetchData();
-  }, [jettonMasterAddress, tonAddress, jettonWalletAddress]);
+  
+    if (jettonWalletAddress && tonAddress) { // Проверка на наличие данных
+      checkOwnership();
+    }
+  }, [jettonWalletAddress, tonAddress, jettonBalance]); // Зависимость от jettonBalance тоже важна
 
   useEffect(() => {
     if (!isLoading) { // Проверка после полной загрузки
