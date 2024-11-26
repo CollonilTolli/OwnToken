@@ -13,7 +13,7 @@ import { getInviteLink, removeUser } from "@/helpers";
 import useJettonBalance from "@/hooks/useJettonBalance";
 import useJettonTransferHistory from "@/hooks/useJettonTransferHistory";
 import useJettonWalletAddress from "@/hooks/useJettonWalletAddress";
-
+import {useDebounce} from "@/hooks/useDebounce"
 export default function BalanceWallet() {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
@@ -31,28 +31,13 @@ export default function BalanceWallet() {
   const { jettonTransferHistory, loadingHistory, errorHistory } =
     useJettonTransferHistory(jettonWalletAddress || "");
 
-  useEffect(() => {
-    if (loadingBalance || loadingHistory) {
-      setIsLoading(true);
-    } else {
-      setIsLoading(false);
-    }
-  }, [loadingBalance, loadingHistory]);
 
   useEffect(() => {
-    if (window) {
-      //@ts-ignore
-      let tg = window.Telegram.WebApp;
-      if (!isTokenOwner && !isLoading && tg.initDataUnsafe) {
-        setTimeout(() => {
-          removeUser(tg.initDataUnsafe.user.id);
-        }, 100);
-      }
-    }
-  }, [isLoading, isTokenOwner]);
+    setIsLoading(loadingBalance || loadingHistory || loadingWallet); // Combine loading checks
+  }, [loadingBalance, loadingHistory, loadingWallet]);
 
   useEffect(() => {
-    if (!loadingHistory && !loadingBalance) {
+    if (!loadingBalance && !loadingHistory && !loadingWallet) { // Check all loading states
       if (
         jettonBalance !== "0" &&
         jettonBalance !== null &&
@@ -61,9 +46,24 @@ export default function BalanceWallet() {
         setIsTokenOwner(
           jettonBalance.length > 0 && jettonTransferHistory.length > 0
         );
+      } else {
+        setIsTokenOwner(false); // explicitly set to false if no balance or history
       }
     }
-  }, [jettonBalance, jettonTransferHistory]);
+  }, [jettonBalance, jettonTransferHistory, loadingBalance, loadingHistory, loadingWallet]);
+
+  const debouncedRemoveUser = useDebounce(removeUser, 100); // Introduce debounce
+
+  useEffect(() => {
+    if (window && !isLoading) { //Only check after loading is complete
+      //@ts-ignore
+      const tg = window.Telegram.WebApp;
+      if (!isTokenOwner && tg.initDataUnsafe) {
+        debouncedRemoveUser(tg.initDataUnsafe.user.id);
+      }
+    }
+  }, [isLoading, isTokenOwner, debouncedRemoveUser]);
+
 
   useEffect(() => {
     if (isTokenOwner) {
