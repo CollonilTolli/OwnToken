@@ -1,19 +1,17 @@
-export function useDebounce<T extends (...args: any[]) => Promise<any>>(
-  callback: T,
-  delay: number
-): (...args: Parameters<T>) => Promise<ReturnType<T>> {
-  let timeoutId: NodeJS.Timeout | null | any= null;
+export function useDebounce(callback: (...args: any[]) => Promise<any>, delay: number) {
+  let timeoutId: NodeJS.Timeout | null | any = null;
 
-  return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
+  return (...args: any[]): Promise<any> => {
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(async () => {
-      try {
-        await callback(...args);  
-      } catch (error) {
-        console.error("Error in debounced callback:", error);
-      }
-    }, delay);
-    return callback(...args);  
+    return new Promise((resolve, reject) => {
+      timeoutId = setTimeout(async () => {
+        try {
+          const result = await callback(...args);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      }, delay);
+    });
   };
 }
-

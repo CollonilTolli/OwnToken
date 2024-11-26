@@ -19,7 +19,6 @@ import { useDebounce } from "@/hooks/useDebounce";
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(true);
-  const [isButton, setIsButton] = useState<boolean>(false);
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingRemoveUser, setIsLoadingRemoveUser] = useState(false);
@@ -45,9 +44,8 @@ import { useDebounce } from "@/hooks/useDebounce";
         jettonTransferHistory !== null
       ) {
         setIsTokenOwner(
-          jettonBalance.length > 0 && jettonTransferHistory.length > 0
-        );
-        setIsButton(jettonBalance.length > 0 && jettonTransferHistory.length > 0)
+          jettonBalance.length > 0 && jettonBalance !== "0" && jettonTransferHistory.length > 0
+        ); 
       }  
     }
   }, [jettonBalance, jettonTransferHistory, loadingBalance, loadingHistory]);
@@ -62,7 +60,7 @@ import { useDebounce } from "@/hooks/useDebounce";
         const tg = window.Telegram.WebApp;
         if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
             const [success] = await Promise.all([
-                removeUser(tg.initDataUnsafe.user.id), 
+              debouncedRemoveUser(tg.initDataUnsafe.user.id), 
             ]);
             if (success ){
               console.log('Пользователь удалён')
@@ -114,8 +112,7 @@ import { useDebounce } from "@/hooks/useDebounce";
             >
               WOT Token
               {jettonBalance && <Info type="text">{jettonBalance}</Info>}
-            </Cell>
-            {isButton && <Cell>
+            </Cell> <Cell>
               <Button
                 Component="a"
                 href={channelLink}
@@ -125,7 +122,7 @@ import { useDebounce } from "@/hooks/useDebounce";
               >
                 Private Telegram Channel
               </Button>{" "}
-            </Cell>}
+            </Cell>
           </>
         ) : (
           <Cell
