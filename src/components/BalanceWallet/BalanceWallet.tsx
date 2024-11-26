@@ -18,7 +18,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 export default function BalanceWallet() {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
-  const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
+  const [isTokenOwner, setIsTokenOwner] = useState<boolean | null>(null);
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -58,7 +58,7 @@ export default function BalanceWallet() {
     if (window && !isLoading) {
       //@ts-ignore
       const tg = window.Telegram.WebApp;
-      if (!isTokenOwner && tg.initDataUnsafe) {
+      if (isTokenOwner === false && tg.initDataUnsafe) {
         debouncedRemoveUser(tg.initDataUnsafe.user.id);
       }
     }
