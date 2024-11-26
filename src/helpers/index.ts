@@ -30,18 +30,19 @@ export async function getInviteLink() {
     return null;
   }
 }
-export async function removeUser(userId: number) {
-  const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY
+export async function removeUser(userId: number): Promise<boolean> {
+  const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
   const apiEndpoint = '/admin/kick';
   try {
     const response = await fetch(`${apiEndpoint}?userId=${userId}&publicKey=${publicKey}`);
     if (!response.ok) {
-      throw Error(`Ошибка запроса: ${response.status}`);
+      console.error(`Ошибка запроса: ${response.status} ${response.statusText}`); 
+      return false;  
     }
-    return;
+    return true;  
   } catch (error) {
     console.error('Ошибка при исключении пользователя: ', error);
-    return null;
+    return false;  
   }
 }
 

@@ -21,6 +21,7 @@ import { useDebounce } from "@/hooks/useDebounce";
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingRemoveUser, setIsLoadingRemoveUser] = useState(true);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
@@ -54,15 +55,35 @@ import { useDebounce } from "@/hooks/useDebounce";
 
   const debouncedRemoveUser = useDebounce(removeUser, 100);
 
-  useLayoutEffect(() => {
-    if (window && !isLoading) {
-      //@ts-ignore
-      const tg = window.Telegram.WebApp;
-      if (!isTokenOwner && tg.initDataUnsafe) {
-        debouncedRemoveUser(tg.initDataUnsafe.user.id);
+  useEffect(() => {
+    const handleRemoveUser = async () => {
+      setIsLoadingRemoveUser(true);  
+      if (window && !isLoading && !isTokenOwner) {
+        // @ts-ignore
+        const tg = window.Telegram.WebApp;
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+          try {
+            const success = await removeUser(tg.initDataUnsafe.user.id);
+            if (success) {
+              console.log('Пользователь успешно удален'); 
+            } else {
+              console.error('Ошибка при удалении пользователя!'); 
+            }
+          } catch (error) {
+            console.error('Непредвиденная ошибка при удалении пользователя:', error); 
+          }
+        } else {
+          console.warn('Данные Telegram Web App недоступны или неполные.');
+        }
       }
+      setIsLoadingRemoveUser(false);  
+    };
+   
+    if (!isLoading && !isLoadingRemoveUser) {
+      handleRemoveUser();
     }
-  }, [isLoading, isTokenOwner, debouncedRemoveUser]);
+   
+  }, [isLoading, isTokenOwner, removeUser, isLoadingRemoveUser]);
 
   useEffect(() => {
     if (isTokenOwner) {
