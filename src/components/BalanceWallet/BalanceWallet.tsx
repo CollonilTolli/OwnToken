@@ -18,9 +18,10 @@ import { useDebounce } from "@/hooks/useDebounce";
 const BalanceWallet = memo(() => {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
-  const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false); // remains false until data is ready
+  const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false); 
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false); 
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
@@ -36,49 +37,45 @@ const BalanceWallet = memo(() => {
     setIsLoading(loadingWallet || loadingBalance || loadingHistory); // combined loading state
   }, [loadingWallet, loadingBalance, loadingHistory]);
 
-  useEffect(() => {
-    if (!loadingWallet && !loadingBalance && !loadingHistory) {
-      // Check all loading states
-      if (jettonBalance !== null && jettonTransferHistory !== null) {
-        setIsTokenOwner(
-          jettonBalance.length > 0 &&
-            jettonBalance !== "0" &&
-            jettonTransferHistory.length > 0
-        );
-      }
-    }
-  }, [
-    jettonBalance,
-    jettonTransferHistory,
-    loadingWallet,
-    loadingBalance,
-    loadingHistory,
-  ]);
-
   const debouncedRemoveUser = useDebounce(removeUser, 100);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                await Promise.all([
+                    useJettonWalletAddress(jettonMasterAddress, tonAddress),
+                    useJettonBalance(jettonWalletAddress || "", tonAddress || ""),
+                    useJettonTransferHistory(jettonWalletAddress || ""),
+                ]);
+                setDataLoaded(true); 
+            } catch (error) {
+                console.error("Ошибка при загрузке данных:", error);
+                setDataLoaded(true);
+            }
+        };
+        fetchData();
+    }, [jettonMasterAddress, tonAddress, jettonWalletAddress]);
 
-  useEffect(() => {
-    const handleRemoveUser = async () => {
-      if (window && !isLoading && !isTokenOwner) {
-        // Check isLoading here
-        //@ts-ignore
-        const tg = window.Telegram.WebApp;
-        if (
-          tg.initDataUnsafe &&
-          tg.initDataUnsafe.user &&
-          tg.initDataUnsafe.user.id
-        ) {
-          const [success] = await Promise.all([
-            debouncedRemoveUser(tg.initDataUnsafe.user.id),
-          ]);
-          if (success) {
-            console.log("Пользователь удалён");
-          }
+
+    useEffect(() => {
+        if (dataLoaded) {  
+            if (jettonBalance !== null && jettonTransferHistory !== null) {
+                setIsTokenOwner(
+                    jettonBalance.length > 0 && jettonBalance !== "0" && jettonTransferHistory.length > 0
+                );
+            }
         }
-      }
-    };
-    handleRemoveUser(); // Call immediately if the conditions are met.
-  }, [isLoading, isTokenOwner, removeUser]); // removeUser dependency added
+    }, [dataLoaded, jettonBalance, jettonTransferHistory]);
+
+    useEffect(() => {
+        const handleRemoveUser = async () => {
+          if (window && !dataLoaded && !isTokenOwner) {  
+            //@ts-ignore
+            const tg = window.Telegram.WebApp;
+            debouncedRemoveUser(tg.initDataUnsafe.user.id)
+          }
+        };
+        handleRemoveUser();
+    }, [dataLoaded, isTokenOwner, removeUser]);
 
   useEffect(() => {
     if (isTokenOwner) {
