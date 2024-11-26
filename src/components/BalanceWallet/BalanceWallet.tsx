@@ -13,7 +13,8 @@ import { getInviteLink, removeUser } from "@/helpers";
 import useJettonBalance from "@/hooks/useJettonBalance";
 import useJettonTransferHistory from "@/hooks/useJettonTransferHistory";
 import useJettonWalletAddress from "@/hooks/useJettonWalletAddress";
-import {useDebounce} from "@/hooks/useDebounce"
+import { useDebounce } from "@/hooks/useDebounce";
+
 export default function BalanceWallet() {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
@@ -31,13 +32,13 @@ export default function BalanceWallet() {
   const { jettonTransferHistory, loadingHistory, errorHistory } =
     useJettonTransferHistory(jettonWalletAddress || "");
 
-
   useEffect(() => {
     setIsLoading(loadingBalance || loadingHistory || loadingWallet); // Combine loading checks
   }, [loadingBalance, loadingHistory, loadingWallet]);
 
   useEffect(() => {
-    if (!loadingBalance && !loadingHistory && !loadingWallet) { // Check all loading states
+    if (!loadingBalance && !loadingHistory && !loadingWallet) {
+      // Check all loading states
       if (
         jettonBalance !== "0" &&
         jettonBalance !== null &&
@@ -50,12 +51,19 @@ export default function BalanceWallet() {
         setIsTokenOwner(false); // explicitly set to false if no balance or history
       }
     }
-  }, [jettonBalance, jettonTransferHistory, loadingBalance, loadingHistory, loadingWallet]);
+  }, [
+    jettonBalance,
+    jettonTransferHistory,
+    loadingBalance,
+    loadingHistory,
+    loadingWallet,
+  ]);
 
   const debouncedRemoveUser = useDebounce(removeUser, 100); // Introduce debounce
 
   useEffect(() => {
-    if (window && !isLoading) { //Only check after loading is complete
+    if (window && !isLoading) {
+      //Only check after loading is complete
       //@ts-ignore
       const tg = window.Telegram.WebApp;
       if (!isTokenOwner && tg.initDataUnsafe) {
@@ -63,7 +71,6 @@ export default function BalanceWallet() {
       }
     }
   }, [isLoading, isTokenOwner, debouncedRemoveUser]);
-
 
   useEffect(() => {
     if (isTokenOwner) {
