@@ -32,7 +32,7 @@ export default function BalanceWallet() {
   const { jettonTransferHistory, loadingHistory, errorHistory } =
     useJettonTransferHistory(jettonWalletAddress || "");
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setIsLoading(loadingBalance || loadingHistory);
   }, [loadingBalance, loadingHistory]);
 
