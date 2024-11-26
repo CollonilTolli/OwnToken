@@ -56,29 +56,22 @@ const BalanceWallet = () => {
   }, [jettonMasterAddress, tonAddress, jettonWalletAddress]);
 
   useEffect(() => {
-    const fetchDataAndCheckOwner = async () => {
-      try {
-        await Promise.all([
-          useJettonWalletAddress(jettonMasterAddress, tonAddress),
-          useJettonBalance(jettonWalletAddress || "", tonAddress || ""),
-          useJettonTransferHistory(jettonWalletAddress || ""),
-        ]);
-        setDataLoaded(true);
-        if (dataLoaded && !isTokenOwner) {
-          if (window) {
-            //@ts-ignore
-            const tg = window.Telegram.WebApp;
-            debouncedRemoveUser(tg.initDataUnsafe.user.id);
-          }
+    if (!isLoading) { // Проверка после полной загрузки
+      const balanceNum = parseFloat(jettonBalance || "0"); // Обработка возможного null
+      setIsTokenOwner(!isNaN(balanceNum) && balanceNum > 0); // Проверка на NaN
+
+      if (!isTokenOwner) {
+        if (window) {
+          //@ts-ignore
+          const tg = window.Telegram.WebApp;
+          debouncedRemoveUser(tg.initDataUnsafe.user.id)
+            .then(() => console.log('User removed successfully'))
+            .catch(err => console.error('Error removing user:', err));
         }
-      } catch (error) {
-        console.error("Ошибка при загрузке данных:", error);
-        setDataLoaded(true);
       }
-    };
-  
-    fetchDataAndCheckOwner();
-  }, [jettonMasterAddress, tonAddress, jettonWalletAddress]);
+ 
+    }
+  }, [isLoading, jettonBalance, isTokenOwner, jettonWalletAddress])
   
 
   useEffect(() => {

@@ -1,9 +1,13 @@
-import { useState, useEffect } from 'react';
-import TonWeb from 'tonweb';
+import { useState, useEffect } from "react";
+import TonWeb from "tonweb";
 
-const useJettonWalletAddress = (jettonMasterAddress: string, ownerWalletAddress: string) => {
-  const [jettonWalletAddress, setJettonWalletAddress] = useState<string | null>(null);
-  const [jettonWalletData, setJettonWalletData] = useState<any | null>(null);
+const useJettonWalletAddress = (
+  jettonMasterAddress: string,
+  ownerWalletAddress: string
+) => {
+  const [jettonWalletAddress, setJettonWalletAddress] = useState<string | null>(
+    null
+  );
   const [loadingWallet, setLoadingWallet] = useState(false);
   const [errorWallet, setErrorWallet] = useState<string | null>(null);
 
@@ -27,32 +31,38 @@ const useJettonWalletAddress = (jettonMasterAddress: string, ownerWalletAddress:
           }
         );
 
-        const jettonWalletAddressResult = await jettonMinter.getJettonWalletAddress(
-          new TonWeb.utils.Address(ownerWalletAddress)
-        );
-
-        const jettonWallet = new TonWeb.token.jetton.JettonWallet(
-          tonweb.provider,
-          {
-            address: jettonWalletAddressResult,
-          }
-        );
-
-        const jettonData = await jettonWallet.getData();
-
-        if (
-          jettonData.jettonMinterAddress.toString(false) !==
-          jettonMinter.address?.toString(false)
-        ) {
-          throw new Error(
-            "Jetton minter address from jetton wallet does not match the expected minter address"
+        const jettonWalletAddressResult =
+          await jettonMinter.getJettonWalletAddress(
+            new TonWeb.utils.Address(ownerWalletAddress)
           );
-        }
 
-        setJettonWalletAddress(jettonWalletAddressResult.toString(true, true, true));
-        setJettonWalletData(jettonData);
-      } catch (errorWallet: any) {
-        setErrorWallet(errorWallet.message);
+        if (jettonWalletAddressResult) {
+          // Проверка на null или undefined
+          const jettonWallet = new TonWeb.token.jetton.JettonWallet(
+            tonweb.provider,
+            { address: jettonWalletAddressResult }
+          );
+          try {
+            const jettonData = await jettonWallet.getData();
+            if (
+              jettonData.jettonMinterAddress.toString(false) !==
+              jettonMinter.address?.toString(false)
+            ) {
+              throw new Error("Jetton minter address mismatch");
+            }
+            setJettonWalletAddress(jettonWalletAddressResult.toString(true)); // Изменено на toString(true)
+          } catch (getDataError: any) {
+            setErrorWallet(
+              `Error getting jetton wallet data: ${getDataError.message}`
+            );
+          }
+        } else {
+          setErrorWallet("Jetton wallet address not found");
+        }
+      } catch (error: any) {
+        setErrorWallet(
+          `Error fetching jetton wallet address: ${error.message}`
+        );
       } finally {
         setLoadingWallet(false);
       }
@@ -62,13 +72,10 @@ const useJettonWalletAddress = (jettonMasterAddress: string, ownerWalletAddress:
       fetchWalletAddress();
     } else {
       setJettonWalletAddress(null);
-      setJettonWalletData(null);
     }
-
   }, [jettonMasterAddress, ownerWalletAddress]);
 
-  return { jettonWalletAddress, jettonWalletData, loadingWallet, errorWallet };
+  return { jettonWalletAddress, loadingWallet, errorWallet };
 };
 
 export default useJettonWalletAddress;
-
