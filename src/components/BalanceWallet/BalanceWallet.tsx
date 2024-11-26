@@ -21,7 +21,7 @@ import { useDebounce } from "@/hooks/useDebounce";
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingRemoveUser, setIsLoadingRemoveUser] = useState(true);
+  const [isLoadingRemoveUser, setIsLoadingRemoveUser] = useState(false);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
@@ -52,9 +52,7 @@ import { useDebounce } from "@/hooks/useDebounce";
       }
     }
   }, [jettonBalance, jettonTransferHistory, loadingBalance, loadingHistory]);
-
-  const debouncedRemoveUser = useDebounce(removeUser, 100);
-
+ 
   useEffect(() => {
     const handleRemoveUser = async () => {
       setIsLoadingRemoveUser(true);  
