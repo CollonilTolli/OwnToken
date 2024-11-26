@@ -32,7 +32,7 @@ import { useDebounce } from "@/hooks/useDebounce";
   const { jettonTransferHistory, loadingHistory, errorHistory } =
     useJettonTransferHistory(jettonWalletAddress || "");
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setIsLoading(loadingBalance || loadingHistory);
   }, [loadingBalance, loadingHistory]);
 
