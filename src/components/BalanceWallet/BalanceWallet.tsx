@@ -32,12 +32,12 @@ import { useDebounce } from "@/hooks/useDebounce";
   const { jettonTransferHistory, loadingHistory, errorHistory } =
     useJettonTransferHistory(jettonWalletAddress || "");
 
+ 
   useEffect(() => {
-    setTimeout(()=> {
-      setIsLoading(false);
-    }, 999)
-  }, []);
-
+    setIsLoading(false);
+    const isLoadingCurrent = loadingHistory || loadingBalance;
+    setIsLoading(isLoadingCurrent);
+  }, [loadingBalance, loadingHistory]);
   useEffect(() => {
     if (!loadingBalance && !loadingHistory && !loadingWallet) {
       if ( 
