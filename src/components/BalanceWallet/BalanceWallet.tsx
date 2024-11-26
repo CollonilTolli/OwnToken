@@ -38,33 +38,23 @@ const BalanceWallet = () => {
   }, [loadingWallet, loadingBalance, loadingHistory]);
 
   const debouncedRemoveUser = useDebounce(removeUser, 100);
+  const [ownershipChecked, setOwnershipChecked] = useState(false);
+
   useEffect(() => {
-    const checkOwnership = async () => {
-      try {
-        await Promise.all([
-          useJettonWalletAddress(jettonMasterAddress, tonAddress),
-          useJettonBalance(jettonWalletAddress || "", tonAddress || ""),
-          useJettonTransferHistory(jettonWalletAddress || ""),
-        ]);
-        const balanceNum = parseFloat(jettonBalance || "0");
-        setIsTokenOwner(!isNaN(balanceNum) && balanceNum > 0);
+    if (isLoading) return;  // Ничего не делаем, пока идет загрузка
   
-        if (!isTokenOwner) {
-          if (window) {
-            //@ts-ignore
-            const tg = window.Telegram.WebApp;
-            await debouncedRemoveUser(tg.initDataUnsafe.user.id); // Добавлен await
-          }
-        }
-      } catch (error) {
-        console.error("Error checking ownership:", error); 
-      }
-    };
-  
-    if (jettonWalletAddress && tonAddress) { // Проверка на наличие данных
-      checkOwnership();
+    if (!ownershipChecked) {
+      const balanceNum = parseFloat(jettonBalance || "0");
+      setIsTokenOwner(!isNaN(balanceNum) && balanceNum > 0);
+      setOwnershipChecked(true);
     }
-  }, [jettonWalletAddress, tonAddress, jettonBalance]); // Зависимость от jettonBalance тоже важна
+  
+    if (ownershipChecked && !isTokenOwner && window) {
+      //@ts-ignore
+      const tg = window.Telegram.WebApp;
+      debouncedRemoveUser(tg.initDataUnsafe.user.id);
+    }
+  }, [isLoading, jettonBalance, ownershipChecked, isTokenOwner]);
   
 
   useEffect(() => {
