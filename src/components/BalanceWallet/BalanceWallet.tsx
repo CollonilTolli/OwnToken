@@ -59,7 +59,7 @@ const BalanceWallet = () => {
 
   useEffect(() => {
     if (dataLoaded) {
-      setIsTokenOwner(jettonBalance !== null && parseFloat(jettonBalance) > 0);
+      setIsTokenOwner(jettonBalance !== "0" && jettonTransferHistory.length > 0);
     }
   }, [dataLoaded, jettonBalance]);
 
