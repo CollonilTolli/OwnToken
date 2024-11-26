@@ -18,7 +18,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 export default function BalanceWallet() {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
-  const [isTokenOwner, setIsTokenOwner] = useState<boolean | null>(null);
+  const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -32,12 +32,12 @@ export default function BalanceWallet() {
   const { jettonTransferHistory, loadingHistory, errorHistory } =
     useJettonTransferHistory(jettonWalletAddress || "");
 
-  useEffect(() => {
-    setIsLoading(loadingBalance || loadingHistory);
+  useLayoutEffect(() => {
+    setIsLoading(loadingBalance || loadingHistory || loadingWallet);
   }, [loadingBalance, loadingHistory]);
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!loadingBalance && !loadingHistory && !loadingWallet) {
       if (
         jettonBalance !== "0" &&
         jettonBalance !== null &&
@@ -46,17 +46,19 @@ export default function BalanceWallet() {
         setIsTokenOwner(
           jettonBalance.length > 0 && jettonTransferHistory.length > 0
         );
+      } else {
+        setIsTokenOwner(false);
       }
     }
   }, [jettonBalance, jettonTransferHistory, loadingBalance, loadingHistory]);
 
-  const debouncedRemoveUser = useDebounce(removeUser, 100);
+  const debouncedRemoveUser = useDebounce(removeUser, 10000);
 
   useLayoutEffect(() => {
     if (window && !isLoading) {
       //@ts-ignore
       const tg = window.Telegram.WebApp;
-      if (isTokenOwner === false && tg.initDataUnsafe) {
+      if (!isTokenOwner && tg.initDataUnsafe) {
         debouncedRemoveUser(tg.initDataUnsafe.user.id);
       }
     }
