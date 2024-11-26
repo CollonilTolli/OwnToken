@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useLayoutEffect, memo } from "react";
+import { useState, useEffect, useLayoutEffect, Suspense } from "react";
 import {
   Section,
   Cell,
@@ -15,13 +15,13 @@ import useJettonTransferHistory from "@/hooks/useJettonTransferHistory";
 import useJettonWalletAddress from "@/hooks/useJettonWalletAddress";
 import { useDebounce } from "@/hooks/useDebounce";
 
-const BalanceWallet = memo(() => {
+const BalanceWallet = () => {
   const tonAddress = useTonAddress(false);
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
-  const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false); 
+  const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
   const [channelLink, setChannelLink] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [dataLoaded, setDataLoaded] = useState(false); 
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
@@ -38,45 +38,48 @@ const BalanceWallet = memo(() => {
   }, [loadingWallet, loadingBalance, loadingHistory]);
 
   const debouncedRemoveUser = useDebounce(removeUser, 100);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                await Promise.all([
-                    useJettonWalletAddress(jettonMasterAddress, tonAddress),
-                    useJettonBalance(jettonWalletAddress || "", tonAddress || ""),
-                    useJettonTransferHistory(jettonWalletAddress || ""),
-                ]);
-                setDataLoaded(true); 
-            } catch (error) {
-                console.error("Ошибка при загрузке данных:", error);
-                setDataLoaded(true);
-            }
-        };
-        fetchData();
-    }, [jettonMasterAddress, tonAddress, jettonWalletAddress]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          useJettonWalletAddress(jettonMasterAddress, tonAddress),
+          useJettonBalance(jettonWalletAddress || "", tonAddress || ""),
+          useJettonTransferHistory(jettonWalletAddress || ""),
+        ]);
+        setDataLoaded(true);
+      } catch (error) {
+        console.error("Ошибка при загрузке данных:", error);
+        setDataLoaded(true);
+      }
+    };
+    fetchData();
+  }, [jettonMasterAddress, tonAddress, jettonWalletAddress]);
 
+  useEffect(() => {
+    if (dataLoaded) {
+      if (jettonBalance !== null && jettonTransferHistory !== null) {
+        setIsTokenOwner(
+          jettonBalance.length > 0 &&
+            jettonBalance !== "0" &&
+            jettonTransferHistory.length > 0
+        );
+      }
+    }
+  }, [dataLoaded, jettonBalance, jettonTransferHistory]);
 
-    useEffect(() => {
-        if (dataLoaded) {  
-            if (jettonBalance !== null && jettonTransferHistory !== null) {
-                setIsTokenOwner(
-                    jettonBalance.length > 0 && jettonBalance !== "0" && jettonTransferHistory.length > 0
-                );
-            }
-        }
-    }, [dataLoaded, jettonBalance, jettonTransferHistory]);
+  useEffect(() => {
+    if (dataLoaded && !isTokenOwner) {
+      handleRemoveUser();
+    }
+  }, [dataLoaded, isTokenOwner]);
 
-    useEffect(() => {
-        const handleRemoveUser = async () => {
-          if (window && !dataLoaded && !isTokenOwner) {  
-            //@ts-ignore
-            const tg = window.Telegram.WebApp;
-            debouncedRemoveUser(tg.initDataUnsafe.user.id)
-          }
-        };
-        handleRemoveUser();
-    }, [dataLoaded, isTokenOwner, removeUser]);
-
+  const handleRemoveUser = async () => {
+    if (window && !dataLoaded && !isTokenOwner) {
+      //@ts-ignore
+      const tg = window.Telegram.WebApp;
+      debouncedRemoveUser(tg.initDataUnsafe.user.id);
+    }
+  };
   useEffect(() => {
     if (isTokenOwner) {
       const getLink = async () => {
@@ -91,14 +94,16 @@ const BalanceWallet = memo(() => {
     }
   }, [isTokenOwner]);
 
-  if (isLoading) {
-    return (
-      <div className="loaderContainer">
-        <Spinner size="l" />
-      </div>
-    );
-  } else {
-    return (
+  return (
+    <Suspense
+      fallback={
+        isLoading && (
+          <div className="loaderContainer">
+            <Spinner size="l" />
+          </div>
+        )
+      }
+    >
       <Section header="Balance">
         {isTokenOwner ? (
           <>
@@ -159,7 +164,7 @@ const BalanceWallet = memo(() => {
             </Cell>
           ))}
       </Section>
-    );
-  }
-});
+    </Suspense>
+  );
+};
 export default BalanceWallet;
