@@ -52,29 +52,25 @@ import { useDebounce } from "@/hooks/useDebounce";
       }
     }
   }, [jettonBalance, jettonTransferHistory, loadingBalance, loadingHistory]);
- 
+
+  const debouncedRemoveUser = useDebounce(removeUser, 100);
+
   useEffect(() => {
     const handleRemoveUser = async () => {
-      setIsLoadingRemoveUser(true);  
+      setIsLoadingRemoveUser(true);
       if (window && !isLoading && !isTokenOwner) {
-        // @ts-ignore
+        //@ts-ignore
         const tg = window.Telegram.WebApp;
-        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
-          try {
-            const success = await removeUser(tg.initDataUnsafe.user.id);
-            if (success) {
-              console.log('Пользователь успешно удален'); 
-            } else {
-              console.error('Ошибка при удалении пользователя!'); 
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+            const [success] = await Promise.all([
+                removeUser(tg.initDataUnsafe.user.id), 
+            ]);
+            if (success ){
+              console.log('Пользователь удалён')
             }
-          } catch (error) {
-            console.error('Непредвиденная ошибка при удалении пользователя:', error); 
-          }
-        } else {
-          console.warn('Данные Telegram Web App недоступны или неполные.');
         }
       }
-      setIsLoadingRemoveUser(false);  
+      setIsLoadingRemoveUser(false);
     };
    
     if (!isLoading && !isLoadingRemoveUser) {
