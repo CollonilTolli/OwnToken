@@ -32,13 +32,12 @@ export default function BalanceWallet() {
   const { jettonTransferHistory, loadingHistory, errorHistory } =
     useJettonTransferHistory(jettonWalletAddress || "");
 
-  useEffect(() => {
-    setIsLoading(loadingBalance || loadingHistory || loadingWallet);  
-  }, [loadingBalance, loadingHistory, loadingWallet]);
+  useLayoutEffect(() => {
+    setIsLoading(loadingBalance || loadingHistory);
+  }, [loadingBalance, loadingHistory]);
 
   useEffect(() => {
     if (!loadingBalance && !loadingHistory && !loadingWallet) {
-      // Check all loading states
       if (
         jettonBalance !== "0" &&
         jettonBalance !== null &&
@@ -48,18 +47,12 @@ export default function BalanceWallet() {
           jettonBalance.length > 0 && jettonTransferHistory.length > 0
         );
       } else {
-        setIsTokenOwner(false); 
+        setIsTokenOwner(false);
       }
     }
-  }, [
-    jettonBalance,
-    jettonTransferHistory,
-    loadingBalance,
-    loadingHistory,
-    loadingWallet,
-  ]);
+  }, [jettonBalance, jettonTransferHistory, loadingBalance, loadingHistory]);
 
-  const debouncedRemoveUser = useDebounce(removeUser, 10000); 
+  const debouncedRemoveUser = useDebounce(removeUser, 10000);
 
   useLayoutEffect(() => {
     if (window && !isLoading) {
