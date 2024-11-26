@@ -3,7 +3,7 @@ import TonWeb from "tonweb";
 
 const useJettonTransferHistory = (jettonWalletAddress: string) => {
   const [jettonTransferHistory, setJettonTransferHistory] = useState<any[]>([]);
-  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(true);
   const [errorHistory, setErrorHistory] = useState<string | null>(null);
   const limit = 10;
 

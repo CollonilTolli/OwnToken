@@ -3,7 +3,7 @@ import TonWeb from 'tonweb';
 
 const useJettonBalance = (walletAddress: string, tonAddress: string) => {
   const [jettonBalance, setJettonBalance] = useState<string | null>(null);
-  const [loadingBalance, setLoadingBalance] = useState(false);
+  const [loadingBalance, setLoadingBalance] = useState(true);
   const [errorBalance, setErrorBalance] = useState<string | null>(null);
 
   useEffect(() => {

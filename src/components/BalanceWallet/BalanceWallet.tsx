@@ -20,8 +20,7 @@ import { useDebounce } from "@/hooks/useDebounce";
   const jettonMasterAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS ?? "";
   const [isTokenOwner, setIsTokenOwner] = useState<boolean>(false);
   const [channelLink, setChannelLink] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingRemoveUser, setIsLoadingRemoveUser] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); 
 
   const { jettonWalletAddress, loadingWallet, errorWallet } =
     useJettonWalletAddress(jettonMasterAddress, tonAddress);
@@ -34,7 +33,7 @@ import { useDebounce } from "@/hooks/useDebounce";
     useJettonTransferHistory(jettonWalletAddress || "");
 
   useLayoutEffect(() => {
-    setIsLoading(loadingBalance || loadingHistory || loadingWallet);
+    setIsLoading(loadingBalance || loadingHistory);
   }, [loadingBalance, loadingHistory]);
 
   useEffect(() => {
@@ -53,8 +52,7 @@ import { useDebounce } from "@/hooks/useDebounce";
   const debouncedRemoveUser = useDebounce(removeUser, 100);
 
   useEffect(() => {
-    const handleRemoveUser = async () => {
-      setIsLoadingRemoveUser(true);
+    const handleRemoveUser = async () => { 
       if (window && !isLoading && !isTokenOwner) {
         //@ts-ignore
         const tg = window.Telegram.WebApp;
@@ -66,15 +64,14 @@ import { useDebounce } from "@/hooks/useDebounce";
               console.log('Пользователь удалён')
             }
         }
-      }
-      setIsLoadingRemoveUser(false);
+      } 
     };
    
-    if (!isLoading && !isLoadingRemoveUser) {
+    if (!isLoading) {
       handleRemoveUser();
     }
    
-  }, [isLoading, isTokenOwner, removeUser, isLoadingRemoveUser]);
+  }, [isLoading, isTokenOwner, removeUser]);
 
   useEffect(() => {
     if (isTokenOwner) {
