@@ -35,7 +35,7 @@ import { useDebounce } from "@/hooks/useDebounce";
   useEffect(() => {
     setTimeout(()=> {
       setIsLoading(false);
-    }, 1500)
+    }, 999)
   }, []);
 
   useEffect(() => {
