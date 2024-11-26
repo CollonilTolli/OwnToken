@@ -43,9 +43,8 @@ const BalanceWallet = () => {
   useEffect(() => {
     if (isLoading) return;  // Ничего не делаем, пока идет загрузка
   
-    if (!ownershipChecked) {
-      const balanceNum = parseFloat(jettonBalance || "0");
-      setIsTokenOwner(!isNaN(balanceNum) && balanceNum > 0);
+    if (!ownershipChecked) { 
+      setIsTokenOwner(jettonBalance !== "0" && jettonTransferHistory.length > 0);
       setOwnershipChecked(true);
     }
   
@@ -56,12 +55,7 @@ const BalanceWallet = () => {
     }
   }, [isLoading, jettonBalance, ownershipChecked, isTokenOwner]);
   
-
-  useEffect(() => {
-    if (dataLoaded) {
-      setIsTokenOwner(jettonBalance !== "0" && jettonTransferHistory.length > 0);
-    }
-  }, [dataLoaded, jettonBalance]);
+ 
 
   useEffect(() => {
     if (isTokenOwner) {
