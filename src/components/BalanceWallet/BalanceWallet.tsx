@@ -65,24 +65,6 @@ const BalanceWallet = () => {
       checkOwnership();
     }
   }, [jettonWalletAddress, tonAddress, jettonBalance]); // Зависимость от jettonBalance тоже важна
-
-  useEffect(() => {
-    if (!isLoading) { // Проверка после полной загрузки
-      const balanceNum = parseFloat(jettonBalance || "0"); // Обработка возможного null
-      setIsTokenOwner(!isNaN(balanceNum) && balanceNum > 0); // Проверка на NaN
-
-      if (!isTokenOwner) {
-        if (window) {
-          //@ts-ignore
-          const tg = window.Telegram.WebApp;
-          debouncedRemoveUser(tg.initDataUnsafe.user.id)
-            .then(() => console.log('User removed successfully'))
-            .catch(err => console.error('Error removing user:', err));
-        }
-      }
- 
-    }
-  }, [isLoading, jettonBalance, isTokenOwner, jettonWalletAddress])
   
 
   useEffect(() => {
