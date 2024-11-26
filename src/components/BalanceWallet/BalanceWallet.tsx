@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import {
   Section,
   Cell,
@@ -33,7 +33,7 @@ export default function BalanceWallet() {
     useJettonTransferHistory(jettonWalletAddress || "");
 
   useEffect(() => {
-    setIsLoading(loadingBalance || loadingHistory || loadingWallet); // Combine loading checks
+    setIsLoading(loadingBalance || loadingHistory || loadingWallet);  
   }, [loadingBalance, loadingHistory, loadingWallet]);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function BalanceWallet() {
           jettonBalance.length > 0 && jettonTransferHistory.length > 0
         );
       } else {
-        setIsTokenOwner(false); // explicitly set to false if no balance or history
+        setIsTokenOwner(false); 
       }
     }
   }, [
@@ -59,11 +59,10 @@ export default function BalanceWallet() {
     loadingWallet,
   ]);
 
-  const debouncedRemoveUser = useDebounce(removeUser, 100); // Introduce debounce
+  const debouncedRemoveUser = useDebounce(removeUser, 10000); 
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (window && !isLoading) {
-      //Only check after loading is complete
       //@ts-ignore
       const tg = window.Telegram.WebApp;
       if (!isTokenOwner && tg.initDataUnsafe) {
